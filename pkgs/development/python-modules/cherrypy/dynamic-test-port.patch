@@ -1,0 +1,19 @@
+--- a/cherrypy/test/test_logging.py
++++ b/cherrypy/test/test_logging.py
+@@ -5,6 +5,7 @@
+ 
+ from cheroot.test import webtest
+ import pytest
++import portend
+ import requests  # FIXME: Temporary using it directly, better switch
+ 
+ import cherrypy
+@@ -86,6 +87,8 @@
+ 
+     root = Root()
+ 
++    # macOS build sandboxes share the host network; port 8000 may be occupied.
++    webtest.WebCase.PORT = portend.find_available_local_port()
+     cherrypy.config.reset()
+     cherrypy.config.update({
+         'server.socket_host': webtest.WebCase.HOST,
