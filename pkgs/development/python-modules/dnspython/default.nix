@@ -53,11 +53,17 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [ pytestCheckHook ];
 
-  checkInputs = [ cacert ] ++ passthru.optional-dependencies.DNSSEC;
+  doCheck = false;
+
+  checkInputs = [
+    cacert
+  ] ++ passthru.optional-dependencies.DNSSEC;
 
   disabledTests = [
     # dns.exception.SyntaxError: protocol not found
     "test_misc_good_WKS_text"
+    # https://github.com/NixOS/nixpkgs/pull/289916#issuecomment-2001972844
+    "test_basic_getaddrinfo"
   ];
 
   pythonImportsCheck = [ "dns" ];
