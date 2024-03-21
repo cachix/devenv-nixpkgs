@@ -7,3 +7,4 @@ plus a few patches that [devenv](https://github.com/cachix/devenv) needs which h
 
 - [fix creation of Python virtualenv](https://github.com/NixOS/nixpkgs/pull/275701)
 - [libpsl: split outputs](https://github.com/NixOS/nixpkgs/pull/292260)
+- [pixman: disable tests on darwin](https://github.com/NixOS/nixpkgs/pull/297660)
