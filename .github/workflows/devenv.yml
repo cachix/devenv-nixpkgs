@@ -54,6 +54,9 @@ jobs:
     steps:
     - run: sudo rm -rf /opt&
     - uses: actions/checkout@v4
+      with:
+        repository: cachix/devenv
+        ref: main
     - uses: cachix/install-nix-action@v26
       with:
         extra_nix_config: |
@@ -64,5 +67,5 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: |
         nix build
-        PATH=$PWD/result/bin:$PATH devenv-run-tests --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling --only ${{ matrix.example }} examples
-  
+        export PATH=$PWD/result/bin:$PATH
+        devenv-run-tests --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling --only ${{ matrix.example }} examples
