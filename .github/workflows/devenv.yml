@@ -3,10 +3,10 @@ name: "Build & Test"
 on:
   schedule:
     - cron:  '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   tests:
-    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -46,7 +46,7 @@ jobs:
         echo "examples=$json" >> $GITHUB_OUTPUT
   examples:
     name: ${{ matrix.example }} (${{ join(matrix.os) }})
-    needs: [generate-examples, build]
+    needs: [generate-examples]
     strategy:
       fail-fast: false
       matrix:
