@@ -1,8 +1,6 @@
 name: "Build & Test"
 
 on:
-  schedule:
-    - cron:  '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -28,7 +26,7 @@ jobs:
     - run: |
         nix build
         export PATH=$PWD/result/bin:$PATH
-        devenv --override-input nixpkgs github:cachix/devenv-nixpkgs/nixpkgs-rolling shell devenv-test-cli
+        devenv --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling shell devenv-test-cli
         devenv-run-tests --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling tests
   generate-examples:
     runs-on: [self-hosted, linux, X64]
