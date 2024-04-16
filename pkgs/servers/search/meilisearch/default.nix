@@ -7,6 +7,7 @@
   SystemConfiguration,
   nixosTests,
   nix-update-script,
+  libclang
 }:
 
 let
@@ -43,6 +44,8 @@ rustPlatform.buildRustPackage {
     Security
     SystemConfiguration
   ];
+
+  env.LIBCLANG_PATH = "${libclang.lib}/lib";
 
   passthru = {
     updateScript = nix-update-script { };
