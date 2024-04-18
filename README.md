@@ -10,6 +10,7 @@ plus a few patches that [devenv](https://github.com/cachix/devenv) needs which h
 - python3Packages.deepdiff: disable tests
 - dnspython: disable tests
 - openldap: tests fail on darwin
+- [fix meiliesearch on darwin](285676e87ad9f0ca23d8714a6ab61e7e027020c6)
 
 You can check the latest [tests here](https://github.com/cachix/devenv-nixpkgs/actions).
 
