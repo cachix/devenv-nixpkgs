@@ -494,7 +494,11 @@ checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
 
 [[package]]
 name = "benchmarks"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "anyhow",
  "bytes",
@@ -639,7 +643,11 @@ dependencies = [
 
 [[package]]
 name = "build-info"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "anyhow",
  "time",
@@ -1539,7 +1547,11 @@ dependencies = [
 
 [[package]]
 name = "dump"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "anyhow",
  "big_s",
@@ -1787,7 +1799,11 @@ dependencies = [
 
 [[package]]
 name = "file-store"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "faux",
  "tempfile",
@@ -1810,7 +1826,11 @@ dependencies = [
 
 [[package]]
 name = "filter-parser"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "insta",
  "nom",
@@ -1830,7 +1850,11 @@ dependencies = [
 
 [[package]]
 name = "flatten-serde-json"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "criterion",
  "serde_json",
@@ -1948,7 +1972,11 @@ dependencies = [
 
 [[package]]
 name = "fuzzers"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "arbitrary",
  "clap",
@@ -2442,7 +2470,11 @@ checksum = "206ca75c9c03ba3d4ace2460e57b189f39f43de612c2f85836e65c929701bb2d"
 
 [[package]]
 name = "index-scheduler"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "anyhow",
  "big_s",
@@ -2638,7 +2670,11 @@ dependencies = [
 
 [[package]]
 name = "json-depth-checker"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "criterion",
  "serde_json",
@@ -3275,7 +3311,11 @@ checksum = "490cc448043f947bae3cbee9c203358d62dbee0db12107a74be5c30ccfd09771"
 
 [[package]]
 name = "meili-snap"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "insta",
  "md5",
@@ -3284,7 +3324,11 @@ dependencies = [
 
 [[package]]
 name = "meilisearch"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "actix-cors",
  "actix-http",
@@ -3377,7 +3421,11 @@ dependencies = [
 
 [[package]]
 name = "meilisearch-auth"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "base64 0.21.7",
  "enum-iterator",
@@ -3396,7 +3444,11 @@ dependencies = [
 
 [[package]]
 name = "meilisearch-types"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "actix-web",
  "anyhow",
@@ -3426,7 +3478,11 @@ dependencies = [
 
 [[package]]
 name = "meilitool"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "anyhow",
  "clap",
@@ -3465,7 +3521,11 @@ dependencies = [
 
 [[package]]
 name = "milli"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "arroy",
  "big_s",
@@ -3906,7 +3966,11 @@ checksum = "e3148f5046208a5d56bcfc03053e3ca6334e51da8dfb19b6cdc8b306fae3283e"
 
 [[package]]
 name = "permissive-json-pointer"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "big_s",
  "serde_json",
@@ -6074,7 +6138,11 @@ dependencies = [
 
 [[package]]
 name = "xtask"
+<<<<<<< bump-rolling
 version = "1.8.3"
+=======
+version = "1.7.6"
+>>>>>>> bump-rolling
 dependencies = [
  "anyhow",
  "build-info",
