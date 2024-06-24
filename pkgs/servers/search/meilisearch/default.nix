@@ -1,4 +1,3 @@
-<<<<<<< bump-rolling
 {
   stdenv,
   lib,
@@ -12,20 +11,6 @@
 
 let
   version = "1.8.3";
-=======
-{ stdenv
-, lib
-, rustPlatform
-, fetchFromGitHub
-, Security
-, SystemConfiguration
-, nixosTests
-, nix-update-script
-, libclang
-}:
-
-let version = "1.7.6";
->>>>>>> bump-rolling
 in
 rustPlatform.buildRustPackage {
   pname = "meilisearch";
@@ -35,11 +20,7 @@ rustPlatform.buildRustPackage {
     owner = "meilisearch";
     repo = "MeiliSearch";
     rev = "refs/tags/v${version}";
-<<<<<<< bump-rolling
     hash = "sha256-R074dn9kWxHf5loq/K4aLWvrJwpt7YAigNU0YHc0mRg=";
-=======
-    hash = "sha256-LsJM7zkoiu5LZb/rhnZaAS/wVNH8b6YZ+vNEE1wVIIk=";
->>>>>>> bump-rolling
   };
 
   cargoBuildFlags = [ "--package=meilisearch" ];
