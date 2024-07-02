@@ -55,6 +55,8 @@ buildPythonPackage rec {
 
   doCheck = false;
 
+  doCheck = false;
+
   checkInputs = [
     cacert
   ] ++ passthru.optional-dependencies.DNSSEC;

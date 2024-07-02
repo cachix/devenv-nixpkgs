@@ -44,6 +44,8 @@ rustPlatform.buildRustPackage {
     SystemConfiguration
   ];
 
+  env.LIBCLANG_PATH = "${libclang.lib}/lib";
+
   passthru = {
     updateScript = nix-update-script { };
     tests = {
