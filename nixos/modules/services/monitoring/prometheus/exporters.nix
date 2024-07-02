@@ -31,6 +31,7 @@ let
     "collectd"
     "dmarc"
     "dnsmasq"
+    "dnssec"
     "domain"
     "dovecot"
     "fastly"
@@ -51,10 +52,10 @@ let
     "lnd"
     "mail"
     "mikrotik"
-    "minio"
     "modemmanager"
     "mongodb"
     "mysqld"
+    "nats"
     "nextcloud"
     "nginx"
     "nginxlog"
@@ -128,32 +129,32 @@ let
   );
 
   mkExporterOpts = ({ name, port }: {
-    enable = mkEnableOption (lib.mdDoc "the prometheus ${name} exporter");
+    enable = mkEnableOption "the prometheus ${name} exporter";
     port = mkOption {
       type = types.port;
       default = port;
-      description = lib.mdDoc ''
+      description = ''
         Port to listen on.
       '';
     };
     listenAddress = mkOption {
       type = types.str;
       default = "0.0.0.0";
-      description = lib.mdDoc ''
+      description = ''
         Address to listen on.
       '';
     };
     extraFlags = mkOption {
       type = types.listOf types.str;
       default = [];
-      description = lib.mdDoc ''
+      description = ''
         Extra commandline options to pass to the ${name} exporter.
       '';
     };
     openFirewall = mkOption {
       type = types.bool;
       default = false;
-      description = lib.mdDoc ''
+      description = ''
         Open port in firewall for incoming connections.
       '';
     };
@@ -163,7 +164,7 @@ let
       example = literalExpression ''
         "-i eth0 -p tcp -m tcp --dport ${toString port}"
       '';
-      description = lib.mdDoc ''
+      description = ''
         Specify a filter for iptables to use when
         {option}`services.prometheus.exporters.${name}.openFirewall`
         is true. It is used as `ip46tables -I nixos-fw firewallFilter -j nixos-fw-accept`.
@@ -175,7 +176,7 @@ let
       example = literalExpression ''
         iifname "eth0" tcp dport ${toString port} counter accept
       '';
-      description = lib.mdDoc ''
+      description = ''
         Specify rules for nftables to add to the input chain
         when {option}`services.prometheus.exporters.${name}.openFirewall` is true.
       '';
@@ -183,14 +184,14 @@ let
     user = mkOption {
       type = types.str;
       default = "${name}-exporter";
-      description = lib.mdDoc ''
+      description = ''
         User name under which the ${name} exporter shall be run.
       '';
     };
     group = mkOption {
       type = types.str;
       default = "${name}-exporter";
-      description = lib.mdDoc ''
+      description = ''
         Group under which the ${name} exporter shall be run.
       '';
     };
@@ -277,23 +278,19 @@ let
 in
 {
 
-  imports = (lib.forEach [ "blackboxExporter" "collectdExporter" "fritzboxExporter"
-                   "jsonExporter" "minioExporter" "nginxExporter" "nodeExporter"
-                   "snmpExporter" "unifiExporter" "varnishExporter" ]
-       (opt: lib.mkRemovedOptionModule [ "services" "prometheus" "${opt}" ] ''
-         The prometheus exporters are now configured using `services.prometheus.exporters'.
-         See the 18.03 release notes for more information.
-       '' ));
-
   options.services.prometheus.exporters = mkOption {
     type = types.submodule {
       options = (mkSubModules);
       imports = [
         ../../../misc/assertions.nix
         (lib.mkRenamedOptionModule [ "unifi-poller" ] [ "unpoller" ])
+        (lib.mkRemovedOptionModule [ "minio" ] ''
+          The Minio exporter has been removed, as it was broken and unmaintained.
+          See the 24.11 release notes for more information.
+        '')
       ];
     };
-    description = lib.mdDoc "Prometheus exporter configuration";
+    description = "Prometheus exporter configuration";
     default = {};
     example = literalExpression ''
       {
@@ -436,11 +433,7 @@ in
         ''
       )
     ] ++ config.services.prometheus.exporters.warnings;
-  }] ++ [(mkIf config.services.minio.enable {
-    services.prometheus.exporters.minio.minioAddress  = mkDefault "http://localhost:9000";
-    services.prometheus.exporters.minio.minioAccessKey = mkDefault config.services.minio.accessKey;
-    services.prometheus.exporters.minio.minioAccessSecret = mkDefault config.services.minio.secretKey;
-  })] ++ [(mkIf config.services.prometheus.exporters.rtl_433.enable {
+  }]  ++ [(mkIf config.services.prometheus.exporters.rtl_433.enable {
     hardware.rtl-sdr.enable = mkDefault true;
   })] ++ [(mkIf config.services.postfix.enable {
     services.prometheus.exporters.postfix.group = mkDefault config.services.postfix.setgidGroup;

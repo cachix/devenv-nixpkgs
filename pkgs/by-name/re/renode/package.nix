@@ -1,5 +1,6 @@
 { stdenv
 , lib
+, fetchFromGitHub
 , fetchurl
 , autoPatchelfHook
 , makeWrapper
@@ -17,16 +18,24 @@ let
     psutil
     pyyaml
     requests
-    robotframework
+
+    (robotframework.overrideDerivation (oldAttrs: {
+      src = fetchFromGitHub {
+        owner = "robotframework";
+        repo = "robotframework";
+        rev = "v6.1";
+        hash = "sha256-l1VupBKi52UWqJMisT2CVnXph3fGxB63mBVvYdM1NWE=";
+      };
+    }))
   ];
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "renode";
-  version = "1.15.0";
+  version = "1.15.1";
 
   src = fetchurl {
     url = "https://github.com/renode/renode/releases/download/v${finalAttrs.version}/renode-${finalAttrs.version}.linux-portable.tar.gz";
-    hash = "sha256-w3HKYctW1LmiAse/27Y1Gmz9hDprQ1CK7+TXIexCrkg=";
+    hash = "sha256-W+JtyaXcYZD+iaVEFX6eatxV3/Vr4aZrsCLm1Aj+ISs=";
   };
 
   nativeBuildInputs = [

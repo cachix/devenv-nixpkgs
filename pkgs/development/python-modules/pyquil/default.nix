@@ -1,65 +1,65 @@
-{ lib
-, buildPythonPackage
-, deprecated
-, fetchFromGitHub
-, importlib-metadata
-, ipython
-, lark
-, matplotlib-inline
-, nest-asyncio
-, networkx
-, numpy
-, packaging
-, poetry-core
-, pydantic
-, pytest-asyncio
-, pytest-mock
-, pytestCheckHook
-, pythonOlder
-, pythonRelaxDepsHook
-, qcs-sdk-python
-, respx
-, rpcq
-, scipy
-, syrupy
-, tenacity
-, types-deprecated
-, types-python-dateutil
-, types-retry
+{
+  lib,
+  buildPythonPackage,
+  deprecated,
+  fetchFromGitHub,
+  ipython,
+  lark,
+  matplotlib-inline,
+  nest-asyncio,
+  networkx,
+  numpy,
+  packaging,
+  poetry-core,
+  pytest-asyncio,
+  pytest-mock,
+  pytestCheckHook,
+  pythonOlder,
+  pythonRelaxDepsHook,
+  qcs-sdk-python,
+  respx,
+  rpcq,
+  scipy,
+  syrupy,
+  tenacity,
+  types-deprecated,
+  types-python-dateutil,
+  types-retry,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "pyquil";
-  version = "4.7.0";
+  version = "4.9.2";
   pyproject = true;
 
-  disabled = pythonOlder "3.7";
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "rigetti";
     repo = "pyquil";
     rev = "refs/tags/v${version}";
-    hash = "sha256-jzQv9XBJSxdpSWDEEPuHwYfIemelpmVKJUigpz6NWdo=";
+    hash = "sha256-TxmQ9QXTTr4Xv37WmgArfK8Q5H1zAu8qx8wRsvK+vVM=";
   };
 
   pythonRelaxDeps = [
     "lark"
     "networkx"
+    "packaging"
+    "qcs-sdk-python"
   ];
 
-  nativeBuildInputs = [
-    poetry-core
-    pythonRelaxDepsHook
-  ];
+  build-system = [ poetry-core ];
 
-  propagatedBuildInputs = [
+  nativeBuildInputs = [ pythonRelaxDepsHook ];
+
+  dependencies = [
     deprecated
     lark
     matplotlib-inline
     networkx
     numpy
     packaging
-    pydantic
     qcs-sdk-python
     rpcq
     scipy
@@ -67,8 +67,7 @@ buildPythonPackage rec {
     types-deprecated
     types-python-dateutil
     types-retry
-  ] ++ lib.optionals (pythonOlder "3.8") [
-    importlib-metadata
+    typing-extensions
   ];
 
   nativeCheckInputs = [
@@ -84,9 +83,7 @@ buildPythonPackage rec {
   # tests hang
   doCheck = false;
 
-  pythonImportsCheck = [
-    "pyquil"
-  ];
+  pythonImportsCheck = [ "pyquil" ];
 
   meta = with lib; {
     description = "Python library for creating Quantum Instruction Language (Quil) programs";

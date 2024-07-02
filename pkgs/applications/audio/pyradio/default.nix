@@ -6,13 +6,13 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "pyradio";
-  version = "0.9.3.1";
+  version = "0.9.3.9";
 
   src = fetchFromGitHub {
     owner = "coderholic";
     repo = "pyradio";
     rev = "refs/tags/${version}";
-    hash = "sha256-p3F4uN+hkxGp+216abUkFNM5uF/0e0sQHKk5WIpULso=";
+    hash = "sha256-EoHCOg4nPkKRSFX/3AUKJaXzS6J1quwtv+mKeKBu5Ns=";
   };
 
   nativeBuildInputs = [
@@ -27,6 +27,12 @@ python3Packages.buildPythonApplication rec {
     requests
     rich
   ];
+
+  postPatch = ''
+    # Disable update check
+    substituteInPlace pyradio/config \
+      --replace-fail "distro = None" "distro = NixOS"
+  '';
 
   checkPhase = ''
     $out/bin/pyradio --help

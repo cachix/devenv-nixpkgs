@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 with lib;
 
@@ -7,16 +7,19 @@ let
 in
 {
   options.services.scion = {
-    enable = mkEnableOption (lib.mdDoc "all of the scion components and services");
+    enable = mkEnableOption "all of the scion components and services";
     bypassBootstrapWarning = mkOption {
       type = types.bool;
       default = false;
-      description = lib.mdDoc ''
+      description = ''
         bypass Nix warning about SCION PKI bootstrapping
       '';
     };
   };
   config = mkIf cfg.enable {
+    environment.systemPackages = [
+      pkgs.scion
+    ];
     services.scion = {
       scion-dispatcher.enable = true;
       scion-daemon.enable = true;

@@ -60,6 +60,20 @@ stdenv.mkDerivation rec {
       url = "https://github.com/sagemath/sage/commit/1c3f991b9d3c5778e409e5414c6cfcd456113f19.diff";
       hash = "sha256-uCXchYx26DdxTjR1k2748KCEHPnekKS2fAM7SpyhNvM=";
     })
+
+    # https://github.com/sagemath/sage/pull/37763, landed in 10.4.beta2
+    (fetchpatch {
+      name = "scipy-fault-tolerance.patch";
+      url = "https://github.com/sagemath/sage/commit/551139c09f26a5da96b1187c3f0dd17b8d80ef84.diff";
+      hash = "sha256-PR4przrZ3ieHaW2nSY7l7VhNfrUupu9yCIrXpeyoAgg=";
+    })
+
+    # first two commits from https://github.com/sagemath/sage/pull/38100
+    (fetchpatch {
+      name = "sphinx-7.3-update.patch";
+      url = "https://github.com/sagemath/sage/compare/10.4.beta7...d2932e142991b442a3eee5dc4f8949e3f7e6fe5c.patch";
+      hash = "sha256-g6w0ImE0d2ocKnbGMQikcz9eI9r3/gESlA1NrQfGimk=";
+    })
   ];
 
   # Patches needed because of package updates. We could just pin the versions of

@@ -6,7 +6,9 @@
   deprecated,
   dirtyjson,
   fetchFromGitHub,
+  fetchzip,
   fsspec,
+  jsonpath-ng,
   llamaindex-py-client,
   nest-asyncio,
   networkx,
@@ -22,16 +24,29 @@
   pythonOlder,
   pyyaml,
   requests,
-  tree-sitter,
+  spacy,
   sqlalchemy,
   tenacity,
   tiktoken,
+  tree-sitter,
   typing-inspect,
 }:
 
+let
+  stopwords = fetchzip {
+    url = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/stopwords.zip";
+    hash = "sha256-tX1CMxSvFjr0nnLxbbycaX/IBnzHFxljMZceX5zElPY=";
+  };
+
+  punkt = fetchzip {
+    url = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip";
+    hash = "sha256-SKZu26K17qMUg7iCFZey0GTECUZ+sTTrF/pqeEgJCos=";
+  };
+in
+
 buildPythonPackage rec {
   pname = "llama-index-core";
-  version = "0.10.27";
+  version = "0.10.47";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -40,10 +55,24 @@ buildPythonPackage rec {
     owner = "run-llama";
     repo = "llama_index";
     rev = "refs/tags/v${version}";
-    hash = "sha256-jfmoj9TOrFngHs8s7qeMHit/7YGdGX8GrqJMu3avWs4=";
+    hash = "sha256-Rq7Mz9aN6SHLZ5UzDb2i90j7wP+SlYJa9b14Yu00Cuc=";
   };
 
   sourceRoot = "${src.name}/${pname}";
+
+  # When `llama-index` is imported, it uses `nltk` to look for the following files and tries to
+  # download them if they aren't present.
+  # https://github.com/run-llama/llama_index/blob/6efa53cebd5c8ccf363582c932fffde44d61332e/llama-index-core/llama_index/core/utils.py#L59-L67
+  # Setting `NLTK_DATA` to a writable path can also solve this problem, but it needs to be done in
+  # every package that depends on `llama-index-core` for `pythonImportsCheck` not to fail, so this
+  # solution seems more elegant.
+  patchPhase = ''
+    mkdir -p llama_index/core/_static/nltk_cache/corpora/stopwords/
+    cp -r ${stopwords}/* llama_index/core/_static/nltk_cache/corpora/stopwords/
+
+    mkdir -p llama_index/core/_static/nltk_cache/tokenizers/punkt/
+    cp -r ${punkt}/* llama_index/core/_static/nltk_cache/tokenizers/punkt/
+  '';
 
   build-system = [ poetry-core ];
 
@@ -53,6 +82,7 @@ buildPythonPackage rec {
     deprecated
     dirtyjson
     fsspec
+    jsonpath-ng
     llamaindex-py-client
     nest-asyncio
     networkx
@@ -63,6 +93,7 @@ buildPythonPackage rec {
     pillow
     pyyaml
     requests
+    spacy
     sqlalchemy
     tenacity
     tiktoken

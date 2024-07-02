@@ -31,31 +31,33 @@ let
   };
 in
 {
-  ###### interface
+  imports = [
+    (mkRenamedOptionModule [ "virtualisation" "virtualbox" "guest" "draganddrop" ] [ "virtualisation" "virtualbox" "guest" "dragAndDrop" ])
+  ];
 
   options.virtualisation.virtualbox.guest = {
     enable = mkOption {
       default = false;
       type = types.bool;
-      description = lib.mdDoc "Whether to enable the VirtualBox service and other guest additions.";
+      description = "Whether to enable the VirtualBox service and other guest additions.";
     };
 
     clipboard = mkOption {
       default = true;
       type = types.bool;
-      description = lib.mdDoc "Whether to enable clipboard support.";
+      description = "Whether to enable clipboard support.";
     };
 
     seamless = mkOption {
       default = true;
       type = types.bool;
-      description = lib.mdDoc "Whether to enable seamless mode. When activated windows from the guest appear next to the windows of the host.";
+      description = "Whether to enable seamless mode. When activated windows from the guest appear next to the windows of the host.";
     };
 
-    draganddrop = mkOption {
+    dragAndDrop = mkOption {
       default = true;
       type = types.bool;
-      description = lib.mdDoc "Whether to enable drag and drop support.";
+      description = "Whether to enable drag and drop support.";
     };
   };
 
@@ -109,6 +111,11 @@ in
     (
       mkIf cfg.seamless {
         systemd.user.services.virtualboxClientSeamless = mkVirtualBoxUserService "--seamless";
+      }
+    )
+    (
+      mkIf cfg.dragAndDrop {
+        systemd.user.services.virtualboxClientDragAndDrop = mkVirtualBoxUserService "--draganddrop";
       }
     )
   ]);

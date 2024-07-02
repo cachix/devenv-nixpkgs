@@ -1,59 +1,60 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  pythonOlder,
 
-# build-system
-, setuptools
+  # build-system
+  setuptools,
 
-# dependencies
-, boto3
-, botocore
-, cryptography
-, jinja2
-, python-dateutil
-, requests
-, responses
-, werkzeug
-, xmltodict
+  # dependencies
+  boto3,
+  botocore,
+  cryptography,
+  jinja2,
+  python-dateutil,
+  requests,
+  responses,
+  werkzeug,
+  xmltodict,
 
-# optional-dependencies
-, aws-xray-sdk
-, cfn-lint
-, flask
-, flask-cors
-, docker
-, graphql-core
-, joserfc
-, jsondiff
-, multipart
-, openapi-spec-validator
-, py-partiql-parser
-, pyparsing
-, pyyaml
+  # optional-dependencies
+  antlr4-python3-runtime,
+  aws-xray-sdk,
+  cfn-lint,
+  flask,
+  flask-cors,
+  docker,
+  graphql-core,
+  joserfc,
+  jsonpath-ng,
+  jsondiff,
+  multipart,
+  openapi-spec-validator,
+  py-partiql-parser,
+  pyparsing,
+  pyyaml,
 
-# tests
-, freezegun
-, pytestCheckHook
-, pytest-order
-, pytest-xdist
+  # tests
+  freezegun,
+  pytestCheckHook,
+  pytest-order,
+  pytest-xdist,
 }:
 
 buildPythonPackage rec {
   pname = "moto";
-  version = "5.0.3";
+  version = "5.0.5";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-BwrC7fia167ihTRIHOaOLzRMimqP7+xUJ+6g1Zm/29s=";
+    hash = "sha256-Lqyi33dY9oaN9CC/ByXNC5PZhwlgbx+4sjQ7W9yCLZE=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  build-system = [ setuptools ];
 
   propagatedBuildInputs = [
     boto3
@@ -70,6 +71,7 @@ buildPythonPackage rec {
   passthru.optional-dependencies = {
     # non-exhaustive list of extras, that was cobbled together for testing
     all = [
+      antlr4-python3-runtime
       aws-xray-sdk
       cfn-lint
       docker
@@ -78,6 +80,7 @@ buildPythonPackage rec {
       graphql-core
       joserfc
       jsondiff
+      jsonpath-ng
       multipart
       openapi-spec-validator
       pyparsing
@@ -85,9 +88,7 @@ buildPythonPackage rec {
       pyyaml
       setuptools
     ];
-    cognitoidp = [
-      joserfc
-    ];
+    cognitoidp = [ joserfc ];
   };
 
   __darwinAllowLocalNetworking = true;
@@ -104,10 +105,12 @@ buildPythonPackage rec {
   env.AWS_SECRET_ACCESS_KEY = "sk";
 
   pytestFlagsArray = [
-    "-m" "'not network and not requires_docker'"
+    "-m"
+    "'not network and not requires_docker'"
 
     # Matches upstream configuration, presumably due to expensive setup/teardown.
-    "--dist" "loadscope"
+    "--dist"
+    "loadscope"
 
     # Fails at local name resolution
     "--deselect=tests/test_s3/test_multiple_accounts_server.py::TestAccountIdResolution::test_with_custom_request_header"

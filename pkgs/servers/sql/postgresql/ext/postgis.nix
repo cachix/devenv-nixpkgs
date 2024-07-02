@@ -80,8 +80,8 @@ stdenv.mkDerivation rec {
     description = "Geographic Objects for PostgreSQL";
     homepage = "https://postgis.net/";
     changelog = "https://git.osgeo.org/gitea/postgis/postgis/raw/tag/${version}/NEWS";
-    license = licenses.gpl2;
-    maintainers = with maintainers; teams.geospatial.members ++ [ marcweber ];
+    license = licenses.gpl2Plus;
+    maintainers = with maintainers; teams.geospatial.members ++ [ marcweber wolfgangwalther ];
     inherit (postgresql.meta) platforms;
   };
 }

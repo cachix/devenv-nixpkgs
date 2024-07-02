@@ -7,7 +7,7 @@
 , gexiv2
 , pango
 , gobject-introspection
-, wrapGAppsHook
+, wrapGAppsHook3
 , gettext
   # Optional packages:
 , enableOSM ? true
@@ -23,7 +23,7 @@ let
   inherit (pythonPackages) buildPythonApplication pythonOlder;
 in
 buildPythonApplication rec {
-  version = "5.2.1";
+  version = "5.2.2";
   pname = "gramps";
   pyproject = true;
 
@@ -32,8 +32,8 @@ buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "gramps-project";
     repo = "gramps";
-    rev = "v${version}";
-    hash = "sha256-KgUc6AFLVFf3SYpjY/le0g4jNhGe4gpYcnkDEIZ/gxQ=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-umyc5G4p0GSEQEtq6sPUgtq1waNL1OW7iLxnf5dGcLc=";
   };
 
   patches = [
@@ -44,7 +44,7 @@ buildPythonApplication rec {
   ];
 
   nativeBuildInputs = [
-    wrapGAppsHook
+    wrapGAppsHook3
     intltool
     gettext
     gobject-introspection
@@ -69,7 +69,7 @@ buildPythonApplication rec {
   ;
 
   propagatedBuildInputs = with pythonPackages; [
-    bsddb3
+    berkeleydb
     pyicu
     pygobject3
     pycairo

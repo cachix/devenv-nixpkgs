@@ -1,32 +1,29 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, makefun
-, decopatch
-, pythonOlder
-, pytest
-, setuptools-scm
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  makefun,
+  decopatch,
+  pythonOlder,
+  pytest,
+  setuptools-scm,
 }:
 
 buildPythonPackage rec {
   pname = "pytest-cases";
-  version = "3.8.4";
+  version = "3.8.5";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-tM7DNRVvRPO8+oXnnys0tfpS5jMqhULd8+hPoT+qzXY=";
+    hash = "sha256-ySBUGHhHp9MNirZwn7FnCoMOThkjS+cAyFyWttcQLBY=";
   };
 
-  nativeBuildInputs = [
-    setuptools-scm
-  ];
+  nativeBuildInputs = [ setuptools-scm ];
 
-  buildInputs = [
-    pytest
-  ];
+  buildInputs = [ pytest ];
 
   propagatedBuildInputs = [
     decopatch
@@ -38,9 +35,7 @@ buildPythonPackage rec {
   # makefun, pytest-*) have circular dependencies.
   doCheck = false;
 
-  pythonImportsCheck = [
-    "pytest_cases"
-  ];
+  pythonImportsCheck = [ "pytest_cases" ];
 
   meta = with lib; {
     description = "Separate test code from test cases in pytest";

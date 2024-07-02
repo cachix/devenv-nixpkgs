@@ -8,6 +8,7 @@
 , writeShellScriptBin
 , makeWrapper
 , copyDesktopItems
+, giflib
 , makeDesktopItem
 , pkg-config
 , pixman
@@ -16,7 +17,6 @@
 , npm-lockfile-fix
 , overrideSDK
 , darwin
-, fetchpatch
 }:
 
 let
@@ -25,31 +25,23 @@ let
     buildNpmPackage.override {
       stdenv = if stdenv.isDarwin then overrideSDK stdenv "11.0" else stdenv;
     };
-  # update package-lock to fix build errors. this will be resolved in the
-  # next patch version of Bruno at which point the patch can be removed entirely.
-  # upstream PR: https://github.com/usebruno/bruno/pull/1894
-  brunoLockfilePatch_1_12_2 = fetchpatch {
-    url = "https://github.com/usebruno/bruno/pull/1894/commits/e3bab23446623315ee674283285a86e210778fe7.patch";
-    hash = "sha256-8rYBvgu9ZLXjb9AFyk4yMBVjcyFPmlNi66YEaQGQaKw=";
-  };
 in
 buildNpmPackage' rec {
   pname = "bruno";
-  version = "1.12.2";
+  version = "1.19.0";
 
   src = fetchFromGitHub {
     owner = "usebruno";
     repo = "bruno";
     rev = "v${version}";
-    hash = "sha256-C/WeEloUGF0PEfeanm6lHe/MgpcF+g/ZY2tnqXFl9LA=";
+    hash = "sha256-XprUu4Dp7ER8YC1uO4kkzTZLsJtoOFH15elnkxUn7/c=";
 
     postFetch = ''
-      patch -d $out <${brunoLockfilePatch_1_12_2}
       ${lib.getExe npm-lockfile-fix} $out/package-lock.json
     '';
   };
 
-  npmDepsHash = "sha256-Zt5cVB1S86iPYKOUj7FwyR97lwmnFz6sZ+S3Ms/b9+o=";
+  npmDepsHash = "sha256-BVCyZKhSBNJDmhnO68ULj5aMINFQIIlwlGqwjGkOoEI=";
   npmFlags = [ "--legacy-peer-deps" ];
 
   nativeBuildInputs = [
@@ -66,6 +58,7 @@ buildNpmPackage' rec {
     pango
   ] ++ lib.optionals stdenv.isDarwin [
     darwin.apple_sdk_11_0.frameworks.CoreText
+    giflib
   ];
 
   desktopItems = [
@@ -82,7 +75,7 @@ buildNpmPackage' rec {
 
   postPatch = ''
     substituteInPlace scripts/build-electron.sh \
-      --replace 'if [ "$1" == "snap" ]; then' 'exit 0; if [ "$1" == "snap" ]; then'
+      --replace-fail 'if [ "$1" == "snap" ]; then' 'exit 0; if [ "$1" == "snap" ]; then'
   '';
 
   ELECTRON_SKIP_BINARY_DOWNLOAD=1;
@@ -103,8 +96,8 @@ buildNpmPackage' rec {
     find ./Electron.app -name 'Info.plist' | xargs -d '\n' chmod +rw
 
     substituteInPlace electron-builder-config.js \
-      --replace "identity: 'Anoop MD (W7LPPWA48L)'" 'identity: null' \
-      --replace "afterSign: 'notarize.js'," ""
+      --replace-fail "identity: 'Anoop MD (W7LPPWA48L)'" 'identity: null' \
+      --replace-fail "afterSign: 'notarize.js'," ""
 
     npm exec electron-builder -- \
       --dir \
@@ -156,11 +149,11 @@ buildNpmPackage' rec {
   passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
-    description = "Open-source IDE For exploring and testing APIs.";
+    description = "Open-source IDE For exploring and testing APIs";
     homepage = "https://www.usebruno.com";
     inherit (electron.meta) platforms;
     license = licenses.mit;
-    maintainers = with maintainers; [ water-sucks lucasew kashw2 mattpolzin ];
+    maintainers = with maintainers; [ gepbird kashw2 lucasew mattpolzin water-sucks ];
     mainProgram = "bruno";
   };
 }

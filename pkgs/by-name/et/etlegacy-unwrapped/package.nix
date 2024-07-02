@@ -22,7 +22,7 @@
 , zlib
 }:
 let
-  version = "2.82.0";
+  version = "2.82.1";
   fakeGit = writeShellApplication {
     name = "git";
 
@@ -41,7 +41,7 @@ stdenv.mkDerivation {
     owner = "etlegacy";
     repo = "etlegacy";
     rev = "refs/tags/v${version}";
-    hash = "sha256-yNVVEa+3+Swm3hgwm9cSLV0K88E37TgVVjh1uUl8O2o=";
+    hash = "sha256-DA5tudbehXIU+4hX3ggcxWZ7AAOa8LUkIvUHbgMgDY8=";
   };
 
   nativeBuildInputs = [
@@ -91,11 +91,6 @@ stdenv.mkDerivation {
     "-DINSTALL_DEFAULT_BASEDIR=${placeholder "out"}/lib/etlegacy"
     "-DINSTALL_DEFAULT_BINDIR=${placeholder "out"}/bin"
   ];
-
-  postInstall = ''
-    makeWrapper $out/bin/etl.* $out/bin/etl
-    makeWrapper $out/bin/etlded.* $out/bin/etlded
-  '';
 
   hardeningDisable = [ "fortify" ];
 

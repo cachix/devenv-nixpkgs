@@ -28,7 +28,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "MoltenVK";
-  version = "1.2.7";
+  version = "1.2.9";
 
   buildInputs = [
     AppKit
@@ -56,7 +56,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "KhronosGroup";
     repo = "MoltenVK";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-0+S/kueV+AEVt+oFnh4cgcDRVtEbUH1QiHFPhGhimCA=";
+    hash = "sha256-9k7NMw2M6IqCUQNBekzDaS6VYAOKwPmuCfJkENQ7oiI=";
   };
 
   postPatch = ''
@@ -198,7 +198,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   meta = {
-    description = "A Vulkan Portability implementation built on top of Apple’s Metal API";
+    description = "Vulkan Portability implementation built on top of Apple’s Metal API";
     homepage = "https://github.com/KhronosGroup/MoltenVK";
     changelog = "https://github.com/KhronosGroup/MoltenVK/releases";
     maintainers = [ lib.maintainers.reckenrode ];

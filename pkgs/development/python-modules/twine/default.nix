@@ -1,17 +1,18 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, pythonOlder
-, importlib-metadata
-, keyring
-, pkginfo
-, readme-renderer
-, requests
-, requests-toolbelt
-, rich
-, rfc3986
-, setuptools-scm
-, urllib3
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  pythonOlder,
+  importlib-metadata,
+  keyring,
+  pkginfo,
+  readme-renderer,
+  requests,
+  requests-toolbelt,
+  rich,
+  rfc3986,
+  setuptools-scm,
+  urllib3,
 }:
 
 buildPythonPackage rec {
@@ -49,6 +50,5 @@ buildPythonPackage rec {
     mainProgram = "twine";
     homepage = "https://github.com/pypa/twine";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ fridh ];
   };
 }

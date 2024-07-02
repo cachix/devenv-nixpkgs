@@ -17,16 +17,22 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "mise";
-  version = "2024.3.10";
+  version = "2024.5.9";
 
   src = fetchFromGitHub {
     owner = "jdx";
     repo = "mise";
     rev = "v${version}";
-    hash = "sha256-Vx6BI2GmnyvBlDGAkNDJaEMXBphbaIxB5npD/o5c48M=";
+    hash = "sha256-vmY+uI/NqMCLJwJaQU+aDppmn5OSLPUIbeqCSlN8Xb0=";
+
+    # registry is not needed for compilation nor for tests.
+    # contains files with the same name but different case, which cause problems with hash on darwin
+    postFetch = ''
+      rm -rf $out/registry
+    '';
   };
 
-  cargoHash = "sha256-uhpF5jKWtwEx2HkkHd+88HIao4rqvnSQblinVc4ip44=";
+  cargoHash = "sha256-7kcs1vOM68uKjMrRn8jGI6mgXd90TeMUeYWnAGl8sgE=";
 
   nativeBuildInputs = [ installShellFiles pkg-config ];
   buildInputs = [ openssl ] ++ lib.optionals stdenv.isDarwin [ Security SystemConfiguration ];
@@ -70,7 +76,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = {
     homepage = "https://mise.jdx.dev";
-    description = "The front-end to your dev env";
+    description = "Front-end to your dev env";
     changelog = "https://github.com/jdx/mise/releases/tag/v${version}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ konradmalik ];

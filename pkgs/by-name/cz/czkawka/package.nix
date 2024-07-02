@@ -45,9 +45,10 @@ rustPlatform.buildRustPackage {
     glib
     gtk4
     pango
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Foundation
-  ];
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin (with darwin.apple_sdk.frameworks; [
+    Foundation
+    AppKit
+  ]);
 
   nativeCheckInputs = [
     xvfb-run
@@ -79,7 +80,7 @@ rustPlatform.buildRustPackage {
 
   meta = {
     changelog = "https://github.com/qarmin/czkawka/raw/${version}/Changelog.md";
-    description = "A simple, fast and easy to use app to remove unnecessary files from your computer";
+    description = "Simple, fast and easy to use app to remove unnecessary files from your computer";
     homepage = "https://github.com/qarmin/czkawka";
     license = with lib.licenses; [ mit ];
     mainProgram = "czkawka_gui";

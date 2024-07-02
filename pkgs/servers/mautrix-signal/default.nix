@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "mautrix-signal";
-  version = "0.5.1";
+  version = "0.6.1";
 
   src = fetchFromGitHub {
     owner = "mautrix";
     repo = "signal";
     rev = "v${version}";
-    hash = "sha256-juem0enwwY5HOgci9Am2xcAsJK0F48DtpU7J/Osqd9k=";
+    hash = "sha256-JybQhVej82aWcsGLKS/tCBUuy9rARSe4d+ivYEZ0ve4=";
   };
 
   buildInputs = [
@@ -18,13 +18,13 @@ buildGoModule rec {
     libsignal-ffi
   ];
 
-  vendorHash = "sha256-CnuRzDiUVJt4PrU8u7UmT1ejrdpsohmDv8M0qfFb0Ac=";
+  vendorHash = "sha256-LHq/CH53/Jzh49qXdoqXURqTVbSitczw3yH3KU2BMpc=";
 
   doCheck = false;
 
   meta = with lib; {
     homepage = "https://github.com/mautrix/signal";
-    description = "A Matrix-Signal puppeting bridge";
+    description = "Matrix-Signal puppeting bridge";
     license = licenses.agpl3Plus;
     maintainers = with maintainers; [ expipiplus1 niklaskorz ma27 ];
     mainProgram = "mautrix-signal";

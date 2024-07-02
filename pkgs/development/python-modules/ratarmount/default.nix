@@ -1,24 +1,28 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, pythonOlder
-, fusepy
-, ratarmountcore
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  pythonOlder,
+  fusepy,
+  ratarmountcore,
 }:
 
 buildPythonPackage rec {
   pname = "ratarmount";
-  version = "0.14.1";
+  version = "0.15.1";
   format = "setuptools";
 
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-TrOYf9kbcRM8E9vq6sjswK2BQ0eA5zSGAIiNAfIZtnk=";
+    hash = "sha256-hprXZGgE2fpg8Km3gWO60e7teUB4Age5skNPc4p+wIg=";
   };
 
-  propagatedBuildInputs = [ ratarmountcore fusepy ];
+  propagatedBuildInputs = [
+    ratarmountcore
+    fusepy
+  ];
 
   checkPhase = ''
     runHook preCheck

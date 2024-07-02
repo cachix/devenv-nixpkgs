@@ -4,30 +4,31 @@
   fetchFromGitHub,
   fetchYarnDeps,
   nodejs,
-  prefetch-yarn-deps,
+  fixup-yarn-lock,
   yarn,
   nixosTests,
+  nix-update-script,
 }:
 
 stdenv.mkDerivation rec {
   pname = "lxd-ui";
-  version = "0.7";
+  version = "0.9";
 
   src = fetchFromGitHub {
     owner = "canonical";
     repo = "lxd-ui";
     rev = "refs/tags/${version}";
-    hash = "sha256-DJLkXZpParmEYHbTpl6KFC9l9y5DqzUTrC0pb2dJXI4=";
+    hash = "sha256-4TIi/LPm35W86p+l5eYU0VETjno8TKmp43m2SReKElM=";
   };
 
   offlineCache = fetchYarnDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = "sha256-ckTWE/czzvxbGOF8fsJ3W1sal7+NaHquoSjZSPjkGj4=";
+    hash = "sha256-wExAVEl745X4O9hYhKYX2BjmW494Vr13X8bDmVxKMT4=";
   };
 
   nativeBuildInputs = [
     nodejs
-    prefetch-yarn-deps
+    fixup-yarn-lock
     yarn
   ];
 
@@ -60,10 +61,12 @@ stdenv.mkDerivation rec {
   '';
 
   passthru.tests.default = nixosTests.lxd.ui;
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Web user interface for LXD";
     homepage = "https://github.com/canonical/lxd-ui";
+    changelog = "https://github.com/canonical/lxd-ui/releases/tag/${version}";
     license = lib.licenses.gpl3;
     maintainers = lib.teams.lxc.members;
     platforms = lib.platforms.linux;

@@ -1,9 +1,10 @@
-{ stdenv, lib, fetchurl, fetchpatch, fetchFromGitLab, bundlerEnv
+{ stdenv, lib, fetchFromGitLab, bundlerEnv
 , ruby_3_1, tzdata, git, nettools, nixosTests, nodejs, openssl
 , defaultGemConfig, buildRubyGem
 , gitlabEnterprise ? false, callPackage, yarn
-, prefetch-yarn-deps, replace, file, cacert, fetchYarnDeps, makeWrapper, pkg-config
+, fixup-yarn-lock, replace, file, cacert, fetchYarnDeps, makeWrapper, pkg-config
 , cargo, rustc, rustPlatform
+, icu, zlib, which
 }:
 
 let
@@ -49,7 +50,7 @@ let
                 cp Cargo.lock $out
               '';
             };
-            hash = "sha256-7q2xWAsFkXHxkYNzIjPwJRy72xMXF278cpVzqGLt/9Y=";
+            hash = "sha256-SncgYYnoSaWA4kQWonoXXbSMu1mnwTyhdLXFagqgH+o=";
           };
 
           dontBuild = false;
@@ -74,6 +75,9 @@ let
             find $out -type f -name .rustc_info.json -delete
           '';
         };
+        static_holmes = attrs: {
+          buildInputs = [ which icu zlib ];
+        };
       };
     groups = [
       "default" "unicorn" "ed25519" "metrics" "development" "puma" "test" "kerberos"
@@ -94,7 +98,7 @@ let
       sha256 = data.yarn_hash;
     };
 
-    nativeBuildInputs = [ rubyEnv.wrappedRuby rubyEnv.bundler nodejs yarn git cacert prefetch-yarn-deps ];
+    nativeBuildInputs = [ rubyEnv.wrappedRuby rubyEnv.bundler nodejs yarn git cacert fixup-yarn-lock ];
 
     patches = [
       # Since version 12.6.0, the rake tasks need the location of git,

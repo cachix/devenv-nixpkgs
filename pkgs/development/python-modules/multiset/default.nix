@@ -1,19 +1,20 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, setuptools
-, setuptools-scm
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  setuptools,
+  setuptools-scm,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "multiset";
-  version = "3.0.2";
+  version = "3.1.0";
   format = "pyproject";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-oqUSMaQtkiriJFwpTCNaKfioiOBoZdL84hxuyvER//8=";
+    hash = "sha256-jpPlhvaI0uKwD6WEPiqC9p6XHhrHrT14+dKkdgjem6Y=";
   };
 
   postPatch = ''
@@ -26,16 +27,12 @@ buildPythonPackage rec {
     setuptools-scm
   ];
 
-  pythonImportsCheck = [
-    "multiset"
-  ];
+  pythonImportsCheck = [ "multiset" ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   meta = with lib; {
-    description = "An implementation of a multiset";
+    description = "Implementation of a multiset";
     homepage = "https://github.com/wheerd/multiset";
     license = licenses.mit;
     maintainers = [ ];

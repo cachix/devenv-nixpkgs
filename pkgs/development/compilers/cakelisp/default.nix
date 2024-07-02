@@ -3,12 +3,12 @@
 stdenv.mkDerivation {
   pname = "cakelisp";
   # using unstable as it's the only version that builds against gcc-13
-  version = "0.3.0-unstable-2024-03-21";
+  version = "0.3.0-unstable-2024-04-25";
 
   src = fetchgit {
     url = "https://macoy.me/code/macoy/cakelisp";
-    rev = "6bde4b8002e4825116f3b18291a012bf1729f497";
-    hash = "sha256-jpwVHiDRVa6QoYxsasmiV1IdbBqZj0tU5EBruOHfzYg=";
+    rev = "eb4427f555c3def9d65612672ccfe59e11b14059";
+    hash = "sha256-wFyqAbHrBMFKqMYlBjS6flYHPn3Rxtaiqb1rRmlZrB4=";
   };
 
   buildInputs = [ gcc ];
@@ -43,7 +43,7 @@ stdenv.mkDerivation {
   };
 
   meta = with lib; {
-    description = "A performance-oriented Lisp-like language";
+    description = "Performance-oriented Lisp-like language";
     mainProgram = "cakelisp";
     homepage = "https://macoy.me/code/macoy/cakelisp";
     license = licenses.gpl3Plus;

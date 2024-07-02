@@ -1,24 +1,25 @@
-{ lib
-, stdenvNoCC
-, fetchFromGitHub
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
 }:
 
 stdenvNoCC.mkDerivation rec {
   pname = "nuclei-templates";
-  version = "9.8.0";
+  version = "9.9.0";
 
   src = fetchFromGitHub {
     owner = "projectdiscovery";
     repo = "nuclei-templates";
     rev = "refs/tags/v${version}";
-    hash = "sha256-1aLy8wNWMFouZRjhCSiwSq1uo20C9wN7LPxyBqK6K0k=";
+    hash = "sha256-eXC496D45JAZrwnxDB7JlFTLd30MkpHrxkP1tsSc6Jk=";
   };
 
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/share/nuclei-templates
-    cp -R cloud code config dns file headless helpers http javascript network ssl \
+    cp -R cloud code dast dns file headless helpers http javascript network profiles ssl \
       $out/share/nuclei-templates/
 
     runHook postInstall

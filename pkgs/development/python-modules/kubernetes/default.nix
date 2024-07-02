@@ -1,27 +1,28 @@
-{ lib
-, stdenv
-, adal
-, buildPythonPackage
-, certifi
-, fetchFromGitHub
-, google-auth
-, mock
-, pytestCheckHook
-, python-dateutil
-, pythonOlder
-, pythonRelaxDepsHook
-, pyyaml
-, requests
-, requests-oauthlib
-, setuptools
-, six
-, urllib3
-, websocket-client
+{
+  lib,
+  stdenv,
+  adal,
+  buildPythonPackage,
+  certifi,
+  fetchFromGitHub,
+  google-auth,
+  mock,
+  pytestCheckHook,
+  python-dateutil,
+  pythonOlder,
+  pythonRelaxDepsHook,
+  pyyaml,
+  requests,
+  requests-oauthlib,
+  setuptools,
+  six,
+  urllib3,
+  websocket-client,
 }:
 
 buildPythonPackage rec {
   pname = "kubernetes";
-  version = "28.1.0";
+  version = "29.0.0";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
@@ -30,7 +31,7 @@ buildPythonPackage rec {
     owner = "kubernetes-client";
     repo = "python";
     rev = "refs/tags/v${version}";
-    hash = "sha256-NKrxv5a5gkgpNG7yViTKYBYnU249taWl6fkPJa7/Rzo=";
+    hash = "sha256-KChfiXYnJTeIW6O7GaK/fMxU2quIvbjc4gB4aZBeTtI=";
   };
 
   postPatch = ''
@@ -38,9 +39,7 @@ buildPythonPackage rec {
       --replace-fail "assertEquals" "assertEqual"
   '';
 
-  pythonRelaxDeps = [
-    "urllib3"
-  ];
+  pythonRelaxDeps = [ "urllib3" ];
 
   build-system = [
     pythonRelaxDepsHook
@@ -60,14 +59,10 @@ buildPythonPackage rec {
   ];
 
   passthru.optional-dependencies = {
-    adal = [
-      adal
-    ];
+    adal = [ adal ];
   };
 
-  pythonImportsCheck = [
-    "kubernetes"
-  ];
+  pythonImportsCheck = [ "kubernetes" ];
 
   nativeCheckInputs = [
     mock

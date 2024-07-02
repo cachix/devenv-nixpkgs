@@ -8,13 +8,13 @@
 
 buildGoModule rec {
   pname = "workout-tracker";
-  version = "0.11.2";
+  version = "1.15.2";
 
   src = fetchFromGitHub {
     owner = "jovandeginste";
     repo = "workout-tracker";
     rev = "refs/tags/v${version}";
-    hash = "sha256-u2ezn+5PsA4z1w4OQuvfG0QeBzUGzx/11wtmoGVa3WY=";
+    hash = "sha256-NYRoIfhdOjyC9WPp3hsHFZWpAsDjbMk2vLn79PixhvE=";
   };
 
   vendorHash = null;
@@ -23,7 +23,7 @@ buildGoModule rec {
 
   meta = {
     changelog = "https://github.com/jovandeginste/workout-tracker/releases/tag/v${version}";
-    description = "A workout tracking web application for personal use";
+    description = "Workout tracking web application for personal use";
     homepage = "https://github.com/jovandeginste/workout-tracker";
     license = lib.licenses.mit;
     mainProgram = "workout-tracker";

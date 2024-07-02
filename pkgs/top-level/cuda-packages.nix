@@ -69,10 +69,16 @@ let
     backendStdenv = final.callPackage ../development/cuda-modules/backend-stdenv.nix { };
 
     # Loose packages
-    cudatoolkit = final.callPackage ../development/cuda-modules/cudatoolkit { };
+
+    # TODO: Move to aliases.nix once all Nixpkgs has migrated to the splayed CUDA packages
+    cudatoolkit = final.callPackage ../development/cuda-modules/cudatoolkit/redist-wrapper.nix { };
+    cudatoolkit-legacy-runfile = final.callPackage ../development/cuda-modules/cudatoolkit { };
+
     saxpy = final.callPackage ../development/cuda-modules/saxpy { };
     nccl = final.callPackage ../development/cuda-modules/nccl { };
     nccl-tests = final.callPackage ../development/cuda-modules/nccl-tests { };
+
+    writeGpuTestPython = final.callPackage ../development/cuda-modules/write-gpu-python-test.nix { };
   });
 
   mkVersionedPackageName =
@@ -86,7 +92,7 @@ let
     [
       (import ../development/cuda-modules/setup-hooks/extension.nix)
       (callPackage ../development/cuda-modules/cuda/extension.nix { inherit cudaVersion; })
-      (callPackage ../development/cuda-modules/cuda/overrides.nix { inherit cudaVersion; })
+      (import ../development/cuda-modules/cuda/overrides.nix)
       (callPackage ../development/cuda-modules/generic-builders/multiplex.nix {
         inherit cudaVersion flags mkVersionedPackageName;
         pname = "cudnn";

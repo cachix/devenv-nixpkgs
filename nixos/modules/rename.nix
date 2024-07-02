@@ -40,12 +40,16 @@ in
     (mkRemovedOptionModule [ "networking" "vpnc" ] "Use environment.etc.\"vpnc/service.conf\" instead.")
     (mkRemovedOptionModule [ "networking" "wicd" ] "The corresponding package was removed from nixpkgs.")
     (mkRemovedOptionModule [ "programs" "gnome-documents" ] "The corresponding package was removed from nixpkgs.")
+    (mkRemovedOptionModule [ "programs" "pantheon-tweaks" ] ''
+      pantheon-tweaks is no longer a switchboard plugin but an independent app,
+      adding the package to environment.systemPackages is sufficient.
+    '')
     (mkRemovedOptionModule [ "programs" "tilp2" ] "The corresponding package was removed from nixpkgs.")
     (mkRemovedOptionModule [ "programs" "way-cooler" ] ("way-cooler is abandoned by its author: " +
       "https://way-cooler.org/blog/2020/01/09/way-cooler-post-mortem.html"))
     (mkRemovedOptionModule [ "security" "hideProcessInformation" ] ''
-        The hidepid module was removed, since the underlying machinery
-        is broken when using cgroups-v2.
+      The hidepid module was removed, since the underlying machinery
+      is broken when using cgroups-v2.
     '')
     (mkRemovedOptionModule [ "services" "baget" "enable" ] "The baget module was removed due to the upstream package being unmaintained.")
     (mkRemovedOptionModule [ "services" "beegfs" ] "The BeeGFS module has been removed")
@@ -93,7 +97,7 @@ in
       The services.xserver.displayManager.auto module has been removed
       because it was only intended for use in internal NixOS tests, and gave the
       false impression of it being a special display manager when it's actually
-      LightDM. Please use the services.xserver.displayManager.autoLogin options
+      LightDM. Please use the services.displayManager.autoLogin options
       instead, or any other display manager in NixOS as they all support auto-login.
     '')
     (mkRemovedOptionModule [ "services" "xserver" "multitouch" ] ''
