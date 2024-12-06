@@ -7,10 +7,7 @@ Currently, the only supported release is [rolling](https://github.com/cachix/dev
 Rolling is based upon [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
 plus a few patches that [devenv](https://github.com/cachix/devenv) needs which have not yet reached upstream:
 
-- python3Packages.deepdiff: disable tests
-- dnspython: disable tests
-- openldap: tests fail on darwin
-- [fix meiliesearch on darwin](285676e87ad9f0ca23d8714a6ab61e7e027020c6)
+All patches have been upstreamed to nixpkgs!
 
 You can check the latest [tests here](https://github.com/cachix/devenv-nixpkgs/actions).
 
