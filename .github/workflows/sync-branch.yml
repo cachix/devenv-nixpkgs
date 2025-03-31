@@ -16,6 +16,11 @@ jobs:
           git config user.name 'GitHub Actions Bot'
           git config user.email 'actions@github.com'
 
+      - name: Copy patches to temp directory
+        run: |
+          mkdir -p $TEMP/patches
+          cp patches/*.patch $TEMP/patches/
+
       - name: Add upstream remote
         run: |
           git remote add upstream https://github.com/NixOS/nixpkgs.git
@@ -27,19 +32,14 @@ jobs:
 
       - name: Apply patches
         run: |
-          if [ -d "patches" ]; then
-            for patch in $(ls -v patches/*.patch 2>/dev/null); do
-              echo "Applying patch: $patch"
-              if ! git am --verbose "$patch"; then
-                echo "Failed to apply patch: $patch"
-                exit 1
-              fi
-            done
-            git push -f origin bump-rolling
-          else
-            echo "No patches directory found"
-            exit 1
-          fi
+          for patch in $(ls -v "$TEMP/patches/*.patch" 2>/dev/null); do
+            echo "Applying patch: $patch"
+            if ! git am --verbose "$patch"; then
+              echo "Failed to apply patch: $patch"
+              exit 1
+            fi
+          done
+          git push -f origin bump-rolling
 
       # Create PR
       - name: Create Pull Request
