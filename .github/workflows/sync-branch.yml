@@ -18,8 +18,8 @@ jobs:
 
       - name: Copy patches to temp directory
         run: |
-          mkdir -p $TEMP/patches
-          cp patches/*.patch $TEMP/patches/
+          mkdir -p $RUNNER_TEMP/patches
+          cp patches/*.patch $RUNNER_TEMP/patches/
 
       - name: Add upstream remote
         run: |
@@ -32,7 +32,7 @@ jobs:
 
       - name: Apply patches
         run: |
-          for patch in $(ls -v "$TEMP/patches/*.patch" 2>/dev/null); do
+          for patch in $(ls -v "$RUNNER_TEMP/patches/*.patch" 2>/dev/null); do
             echo "Applying patch: $patch"
             if ! git am --verbose "$patch"; then
               echo "Failed to apply patch: $patch"
