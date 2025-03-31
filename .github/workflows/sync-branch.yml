@@ -11,9 +11,11 @@ permissions:
 
 jobs:
   sync-and-test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
@@ -46,9 +48,8 @@ jobs:
 
       - name: Create PR
         run: |
-          git fetch origin rolling
           if ! git diff --quiet bump-rolling rolling; then
-            existing_pr=$(gh pr list --head bump-rolling --base origin/rolling --json number -q '.[0].number')
+            existing_pr=$(gh pr list --head bump-rolling --base rolling --json number -q '.[0].number')
             if [ -n "$existing_pr" ]; then
               echo "Updating existing PR #$existing_pr"
               git push -f origin bump-rolling
