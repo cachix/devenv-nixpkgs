@@ -1,0 +1,55 @@
+name: Sync rolling
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  sync-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name 'GitHub Actions Bot'
+          git config user.email 'actions@github.com'
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/NixOS/nixpkgs.git
+          git fetch upstream
+
+      - name: Create fresh branch from upstream
+        run: |
+          git checkout -B bump-rolling upstream/nixpkgs-unstable
+
+      - name: Apply patches
+        run: |
+          if [ -d "patches" ]; then
+            for patch in $(ls -v patches/*.patch 2>/dev/null); do
+              echo "Applying patch: $patch"
+              if ! git am --verbose "$patch"; then
+                echo "Failed to apply patch: $patch"
+                exit 1
+              fi
+            done
+            git push -f origin bump-rolling
+          else
+            echo "No patches directory found"
+            exit 1
+          fi
+
+      # Create PR
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: 'Update bump-rolling branch from nixpkgs-unstable'
+          body: |
+            Automated PR to sync bump-rolling with upstream nixpkgs-unstable
+          branch: bump-rolling
+          base: rolling
+          delete-branch: false
