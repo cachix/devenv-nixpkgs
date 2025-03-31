@@ -12,7 +12,12 @@ name: "Build & Test"
 
 on:
   workflow_dispatch:
-  pull_request:
+    inputs:
+      nixpkgs-input:
+        description: "Nixpkgs input to use"
+        required: false
+        default: "github:cachix/devenv-nixpkgs/bump-rolling"
+        type: string
 
 jobs:
   tests:
@@ -46,9 +51,9 @@ jobs:
           nix build
           echo "$PWD/result/bin" >> $GITHUB_PATH
       - name: Run devenv-test-cli
-        run: devenv --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling shell devenv-test-cli
+        run: devenv --override-input nixpkgs ${{ inputs.nixpkgs-input }} shell devenv-test-cli
       - name: Run tests
-        run: devenv-run-tests --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling tests
+        run: devenv-run-tests --override-input nixpkgs ${{ inputs.nixpkgs-input }} tests
 
   generate-examples:
     runs-on: [self-hosted, linux, X64]
@@ -101,4 +106,4 @@ jobs:
           nix build
           echo "$PWD/result/bin" >> $GITHUB_PATH
       - name: Run examples
-        run: devenv-run-tests --override-input nixpkgs github:cachix/devenv-nixpkgs/bump-rolling --only ${{ matrix.example }} examples
+        run: devenv-run-tests --override-input nixpkgs ${{ inputs.nixpkgs-input }} --only ${{ matrix.example }} examples
