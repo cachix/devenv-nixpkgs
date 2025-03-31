@@ -19,7 +19,7 @@ jobs:
       - name: Copy patches to temp directory
         run: |
           mkdir -p "$RUNNER_TEMP/patches"
-          cp patches/*.patch "$RUNNER_TEMP/patches/"
+          cp -R patches/ "$RUNNER_TEMP/patches/"
 
       - name: Add upstream remote
         run: |
