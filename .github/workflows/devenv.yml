@@ -21,7 +21,6 @@ on:
 
 jobs:
   tests:
-    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -74,7 +73,7 @@ jobs:
 
   examples:
     name: ${{ matrix.example }} (${{ join(matrix.os) }})
-    needs: [generate-examples, build]
+    needs: [generate-examples, tests]
     strategy:
       fail-fast: false
       matrix:
