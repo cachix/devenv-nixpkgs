@@ -39,15 +39,23 @@ jobs:
               exit 1
             fi
           done
-          git push -f origin bump-rolling
 
-      # Create PR
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          title: 'Update bump-rolling branch from nixpkgs-unstable'
-          body: |
-            Automated PR to sync bump-rolling with upstream nixpkgs-unstable
-          branch: bump-rolling
-          base: rolling
-          delete-branch: false
+      - name: Create PR
+        run: |
+          if ! git diff --quiet bump-rolling rolling; then
+            existing_pr=$(gh pr list --head bump-rolling --base rolling --json number -q '.[0].number')
+            if [ -n "$existing_pr" ]; then
+              echo "Updating existing PR #$existing_pr"
+              git push -f origin bump-rolling
+            else
+              gh pr create \
+                --base rolling \
+                --head bump-rolling \
+                --title "Update bump-rolling branch from nixpkgs-unstable" \
+                --body "Automated PR to sync bump-rolling with upstream nixpkgs-unstable"
+            fi
+          else
+            echo "No differences between bump-rolling and rolling, skipping PR creation"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
