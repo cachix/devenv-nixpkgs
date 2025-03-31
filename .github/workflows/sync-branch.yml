@@ -45,6 +45,7 @@ jobs:
               exit 1
             fi
           done
+          git push -f origin bump-rolling
 
       - name: Create PR
         run: |
@@ -53,8 +54,7 @@ jobs:
           if ! git diff --quiet origin/rolling; then
             existing_pr=$(gh pr list --head bump-rolling --base rolling --json number -q '.[0].number')
             if [ -n "$existing_pr" ]; then
-              echo "Updating existing PR #$existing_pr"
-              git push -f origin bump-rolling
+              echo "Updated existing PR #$existing_pr"
             else
               gh pr create \
                 --base rolling \
