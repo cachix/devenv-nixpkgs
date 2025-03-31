@@ -48,6 +48,8 @@ jobs:
 
       - name: Create PR
         run: |
+          gh repo set-default "$GITHUB_REPO"
+
           if ! git diff --quiet origin/rolling; then
             existing_pr=$(gh pr list --head bump-rolling --base rolling --json number -q '.[0].number')
             if [ -n "$existing_pr" ]; then
@@ -65,3 +67,4 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
