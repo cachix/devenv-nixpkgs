@@ -54,8 +54,8 @@ jobs:
       - name: Push branch
         run: git push -f origin bump-rolling
 
-      - name: Run devenv tests
-        uses: ./.github/workflows/devenv.yml
-        continue-on-error: true
-        with:
-          ref: "github:cachix/devenv-nixpkgs/bump-rolling"
+      - name: Trigger devenv tests
+        run: |
+          gh workflow run devenv.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
