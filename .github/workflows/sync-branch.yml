@@ -57,7 +57,6 @@ jobs:
 
       - name: Trigger devenv tests
         run: |
-          gh workflow run devenv.yml --ref main
+          gh workflow run devenv.yml --ref main -R ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
