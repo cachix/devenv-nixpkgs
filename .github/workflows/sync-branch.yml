@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  actions: write # Trigger workflows
+  contents: write # Push commits
 
 jobs:
   sync-and-test:
