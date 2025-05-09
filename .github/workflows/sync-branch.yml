@@ -2,13 +2,11 @@ name: Sync rolling
 
 on:
   schedule:
-    - cron: '0 9 * * 1'
+    - cron: "0 9 * * 1"
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: write
-  pull-requests: write
 
 jobs:
   sync-and-test:
@@ -37,6 +35,12 @@ jobs:
         run: |
           git checkout -B bump-rolling upstream/nixpkgs-unstable
 
+      - name: Remove nixpkgs workflows
+        run: |
+          rm -rf .github
+          git add -A
+          git commit -m "ci: remove nixpkgs workflows"
+
       - name: Apply patches
         run: |
           for patch in $(ls -v "$RUNNER_TEMP/patches/*.patch" 2>/dev/null); do
@@ -46,26 +50,12 @@ jobs:
               exit 1
             fi
           done
-          git push -f origin bump-rolling
 
-      - name: Create PR
-        run: |
-          gh repo set-default "$GITHUB_REPO"
+      - name: Push branch
+        run: git push -f origin bump-rolling
 
-          if ! git diff --quiet --exit-code origin/rolling; then
-            existing_pr=$(gh pr list --head bump-rolling --base rolling --json number -q '.[0].number')
-            if [ -n "$existing_pr" ]; then
-              echo "Updated existing PR #$existing_pr"
-            else
-              gh pr create \
-                --base rolling \
-                --head bump-rolling \
-                --title "Update bump-rolling branch from nixpkgs-unstable" \
-                --body "Automated PR to sync bump-rolling with upstream nixpkgs-unstable"
-            fi
-          else
-            echo "No differences between bump-rolling and rolling, skipping PR creation"
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO: ${{ github.repository }}
+      - name: Run devenv tests
+        uses: ./.github/workflows/devenv.yml
+        continue-on-error: true
+        with:
+          ref: "github:cachix/devenv-nixpkgs/bump-rolling"
