@@ -44,7 +44,7 @@ jobs:
 
       - name: Apply patches
         run: |
-          for patch in $(ls -v "$RUNNER_TEMP/patches/*.patch" 2>/dev/null); do
+          for patch in "$RUNNER_TEMP/patches/*.patch"; do
             echo "Applying patch: $patch"
             if ! git am --verbose "$patch"; then
               echo "Failed to apply patch: $patch"
