@@ -46,7 +46,7 @@ jobs:
         run: |
           for patch in "$RUNNER_TEMP/patches/*.patch"; do
             echo "Applying patch: $patch"
-            if ! git am --verbose "$patch"; then
+            if ! git am "$patch"; then
               echo "Failed to apply patch: $patch"
               exit 1
             fi
