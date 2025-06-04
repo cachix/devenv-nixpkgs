@@ -1,4 +1,4 @@
-From 0903477284f0ba9f952c508ad809314063c34f8a Mon Sep 17 00:00:00 2001
+From 7a424e0b1e3cba7728ea5fbc32a5d0206368494a Mon Sep 17 00:00:00 2001
 From: Sander <hey@sandydoo.me>
 Date: Wed, 28 May 2025 12:50:13 +0200
 Subject: [PATCH] process-compose: patch a linker issue on x86_64-darwin
@@ -8,7 +8,7 @@ Subject: [PATCH] process-compose: patch a linker issue on x86_64-darwin
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/pkgs/by-name/pr/process-compose/package.nix b/pkgs/by-name/pr/process-compose/package.nix
-index 0836348aa05015..adefca7164b043 100644
+index 0836348aa05015..01c21129eae0b2 100644
 --- a/pkgs/by-name/pr/process-compose/package.nix
 +++ b/pkgs/by-name/pr/process-compose/package.nix
 @@ -2,6 +2,7 @@
@@ -27,8 +27,8 @@ index 0836348aa05015..adefca7164b043 100644
 +    # Fix a linker issue with dlopen on x86_64-darwin
 +    # https://github.com/f1bonacc1/process-compose/pull/342
 +    (fetchpatch2 {
-+      url = "https://github.com/f1bonacc1/process-compose/pull/342.patch";
-+      hash = "sha256-uaXgLeY+ZxopDRW0ZEX9aBx3AHUZesk2jkLDeS0nxqk=";
++      url = "https://github.com/F1bonacc1/process-compose/commit/af82749c5dacaa20f2c3b07ca4e081d1b38e40c4.patch";
++      hash = "sha256-5Hgvwn2GEp/lINPefxXdJUGb2TJfufqAPm+/3gdi6XY=";
 +    })
 +  ];
 +
