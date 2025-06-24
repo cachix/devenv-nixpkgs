@@ -43,10 +43,12 @@ jobs:
       - name: Apply patches
         run: |
           for patch in $RUNNER_TEMP/patches/*.patch; do
-            echo "Applying patch: $patch"
-            if ! git am "$patch"; then
-              echo "Failed to apply patch: $patch"
-              exit 1
+            if [ -f "$patch" ]; then
+              echo "Applying patch: $patch"
+              if ! git am "$patch"; then
+                echo "Failed to apply patch: $patch"
+                exit 1
+              fi
             fi
           done
 
