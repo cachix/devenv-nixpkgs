@@ -56,7 +56,120 @@ jobs:
         run: git push -f origin bump-rolling
 
       - name: Trigger devenv tests
+        id: trigger-tests
         run: |
           gh workflow run devenv.yml --ref main -R ${{ github.repository }}
+          echo "Waiting for workflow to start..."
+          sleep 10
+          
+          # Get the latest workflow run ID
+          RUN_ID=$(gh run list -w devenv.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for tests to complete
+        run: |
+          echo "Waiting for devenv tests to complete..."
+          gh run watch ${{ steps.trigger-tests.outputs.run_id }} -R ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get test results and update README
+        run: |
+          # Get nixpkgs commit hash from bump-rolling branch
+          NIXPKGS_COMMIT=$(git rev-parse HEAD)
+          NIXPKGS_SHORT=$(git rev-parse --short HEAD)
+          
+          # Get workflow run details
+          RUN_ID="${{ steps.trigger-tests.outputs.run_id }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/$RUN_ID"
+          
+          # Get test results
+          JOBS_JSON=$(gh run view $RUN_ID --json jobs)
+          
+          # Parse job results
+          TOTAL_JOBS=$(echo "$JOBS_JSON" | jq '.jobs | length')
+          SUCCESSFUL_JOBS=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion == "success")] | length')
+          FAILED_JOBS=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion == "failure")] | length')
+          
+          # Calculate success rate
+          if [ "$TOTAL_JOBS" -gt 0 ]; then
+            SUCCESS_RATE=$((SUCCESSFUL_JOBS * 100 / TOTAL_JOBS))
+          else
+            SUCCESS_RATE=0
+          fi
+          
+          # Determine overall status
+          if [ "$FAILED_JOBS" -eq 0 ]; then
+            STATUS="✅ All tests passing"
+          else
+            STATUS="❌ Some tests failing"
+          fi
+          
+          # Get individual job results for platform breakdown
+          LINUX_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("linux") and contains("ARM64")) | .conclusion // "unknown"')
+          LINUX_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("linux") and contains("X64")) | .conclusion // "unknown"')
+          MACOS_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("macOS") and contains("ARM64")) | .conclusion // "unknown"')
+          MACOS_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("macos-13")) | .conclusion // "unknown"')
+          
+          # Convert job status to emoji
+          status_to_emoji() {
+            case $1 in
+              "success") echo "✅" ;;
+              "failure") echo "❌" ;;
+              "cancelled") echo "⏹️" ;;
+              "skipped") echo "⏭️" ;;
+              *) echo "⏳" ;;
+            esac
+          }
+          
+          # Get current timestamp
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          # Checkout main branch to update README
+          git checkout main
+          git pull origin main
+          
+          # Create updated README content
+          cat > /tmp/test_results.md << EOF
+          <!-- TEST_RESULTS_START -->
+          **Status**: $STATUS
+
+          **Nixpkgs revision**: [\`$NIXPKGS_SHORT\`](https://github.com/NixOS/nixpkgs/commit/$NIXPKGS_COMMIT)
+
+          **Test run**: [View detailed results]($RUN_URL)
+
+          **Last updated**: $TIMESTAMP
+
+          ### Platform Results
+
+          | Platform | CLI Tests | Examples | Status |
+          |----------|-----------|----------|--------|
+          | Linux ARM64 | $(status_to_emoji "$LINUX_ARM64_CLI") | - | $(status_to_emoji "$LINUX_ARM64_CLI") |
+          | Linux X64 | $(status_to_emoji "$LINUX_X64_CLI") | - | $(status_to_emoji "$LINUX_X64_CLI") |
+          | macOS ARM64 | $(status_to_emoji "$MACOS_ARM64_CLI") | - | $(status_to_emoji "$MACOS_ARM64_CLI") |
+          | macOS X64 (13) | $(status_to_emoji "$MACOS_X64_CLI") | - | $(status_to_emoji "$MACOS_X64_CLI") |
+
+          ### Summary
+
+          - **Total test jobs**: $TOTAL_JOBS
+          - **Successful**: $SUCCESSFUL_JOBS ✅
+          - **Failed**: $FAILED_JOBS ❌
+          - **Success rate**: $SUCCESS_RATE%
+
+          <!-- TEST_RESULTS_END -->
+          EOF
+          
+          # Replace the test results section in README
+          sed -i '/<!-- TEST_RESULTS_START -->/,/<!-- TEST_RESULTS_END -->/{ 
+            /<!-- TEST_RESULTS_START -->/r /tmp/test_results.md
+            /<!-- TEST_RESULTS_START -->/,/<!-- TEST_RESULTS_END -->/d
+          }' README.md
+          
+          # Commit the updated README
+          git add README.md
+          git commit -m "ci: update test results for nixpkgs $NIXPKGS_SHORT"
+          git push origin main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
