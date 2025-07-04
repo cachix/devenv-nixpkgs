@@ -80,39 +80,39 @@ jobs:
           # Get nixpkgs commit hash from bump-rolling branch
           NIXPKGS_COMMIT=$(git rev-parse HEAD)
           NIXPKGS_SHORT=$(git rev-parse --short HEAD)
-          
+
           # Get workflow run details
           RUN_ID="${{ steps.trigger-tests.outputs.run_id }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/$RUN_ID"
-          
+
           # Get test results
           JOBS_JSON=$(gh run view $RUN_ID --json jobs)
-          
+
           # Parse job results
           TOTAL_JOBS=$(echo "$JOBS_JSON" | jq '.jobs | length')
           SUCCESSFUL_JOBS=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion == "success")] | length')
           FAILED_JOBS=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion == "failure")] | length')
-          
+
           # Calculate success rate
           if [ "$TOTAL_JOBS" -gt 0 ]; then
             SUCCESS_RATE=$((SUCCESSFUL_JOBS * 100 / TOTAL_JOBS))
           else
             SUCCESS_RATE=0
           fi
-          
+
           # Determine overall status
           if [ "$FAILED_JOBS" -eq 0 ]; then
             STATUS="✅ All tests passing"
           else
             STATUS="❌ Some tests failing"
           fi
-          
+
           # Get individual job results for platform breakdown
           LINUX_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("linux") and contains("ARM64")) | .conclusion // "unknown"')
           LINUX_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("linux") and contains("X64")) | .conclusion // "unknown"')
           MACOS_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("macOS") and contains("ARM64")) | .conclusion // "unknown"')
           MACOS_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("macos-13")) | .conclusion // "unknown"')
-          
+
           # Convert job status to emoji
           status_to_emoji() {
             case $1 in
@@ -123,50 +123,43 @@ jobs:
               *) echo "⏳" ;;
             esac
           }
-          
+
           # Get current timestamp
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          
+
           # Checkout main branch to update README
           git checkout main
           git pull origin main
-          
-          # Create updated README content
-          cat > /tmp/test_results.md << EOF
-          <!-- TEST_RESULTS_START -->
-          **Status**: $STATUS
 
-          **Nixpkgs revision**: [\`$NIXPKGS_SHORT\`](https://github.com/NixOS/nixpkgs/commit/$NIXPKGS_COMMIT)
+          # Create updated README content using template
+          # Convert emoji values
+          LINUX_ARM64_CLI_EMOJI=$(status_to_emoji "$LINUX_ARM64_CLI")
+          LINUX_X64_CLI_EMOJI=$(status_to_emoji "$LINUX_X64_CLI")
+          MACOS_ARM64_CLI_EMOJI=$(status_to_emoji "$MACOS_ARM64_CLI")
+          MACOS_X64_CLI_EMOJI=$(status_to_emoji "$MACOS_X64_CLI")
 
-          **Test run**: [View detailed results]($RUN_URL)
+          # Use sed to substitute template variables
+          sed -e "s/{{STATUS}}/$STATUS/g" \
+              -e "s/{{NIXPKGS_COMMIT}}/$NIXPKGS_COMMIT/g" \
+              -e "s/{{NIXPKGS_SHORT}}/$NIXPKGS_SHORT/g" \
+              -e "s|{{RUN_URL}}|$RUN_URL|g" \
+              -e "s/{{TIMESTAMP}}/$TIMESTAMP/g" \
+              -e "s/{{TOTAL_JOBS}}/$TOTAL_JOBS/g" \
+              -e "s/{{SUCCESSFUL_JOBS}}/$SUCCESSFUL_JOBS/g" \
+              -e "s/{{FAILED_JOBS}}/$FAILED_JOBS/g" \
+              -e "s/{{SUCCESS_RATE}}/$SUCCESS_RATE/g" \
+              -e "s/{{LINUX_ARM64_CLI}}/$LINUX_ARM64_CLI_EMOJI/g" \
+              -e "s/{{LINUX_X64_CLI}}/$LINUX_X64_CLI_EMOJI/g" \
+              -e "s/{{MACOS_ARM64_CLI}}/$MACOS_ARM64_CLI_EMOJI/g" \
+              -e "s/{{MACOS_X64_CLI}}/$MACOS_X64_CLI_EMOJI/g" \
+              .github/templates/test-results.md > /tmp/test_results.md
 
-          **Last updated**: $TIMESTAMP
-
-          ### Platform Results
-
-          | Platform | CLI Tests | Examples | Status |
-          |----------|-----------|----------|--------|
-          | Linux ARM64 | $(status_to_emoji "$LINUX_ARM64_CLI") | - | $(status_to_emoji "$LINUX_ARM64_CLI") |
-          | Linux X64 | $(status_to_emoji "$LINUX_X64_CLI") | - | $(status_to_emoji "$LINUX_X64_CLI") |
-          | macOS ARM64 | $(status_to_emoji "$MACOS_ARM64_CLI") | - | $(status_to_emoji "$MACOS_ARM64_CLI") |
-          | macOS X64 (13) | $(status_to_emoji "$MACOS_X64_CLI") | - | $(status_to_emoji "$MACOS_X64_CLI") |
-
-          ### Summary
-
-          - **Total test jobs**: $TOTAL_JOBS
-          - **Successful**: $SUCCESSFUL_JOBS ✅
-          - **Failed**: $FAILED_JOBS ❌
-          - **Success rate**: $SUCCESS_RATE%
-
-          <!-- TEST_RESULTS_END -->
-          EOF
-          
           # Replace the test results section in README
           sed -i '/<!-- TEST_RESULTS_START -->/,/<!-- TEST_RESULTS_END -->/{ 
             /<!-- TEST_RESULTS_START -->/r /tmp/test_results.md
             /<!-- TEST_RESULTS_START -->/,/<!-- TEST_RESULTS_END -->/d
           }' README.md
-          
+
           # Commit the updated README
           git add README.md
           git commit -m "ci: update test results for nixpkgs $NIXPKGS_SHORT"
