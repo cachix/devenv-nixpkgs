@@ -62,8 +62,8 @@ jobs:
           echo "Waiting for workflow to start..."
           sleep 10
           
-          # Get the latest workflow run ID
-          RUN_ID=$(gh run list -w devenv.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+          # Get the latest workflow run ID from this repository
+          RUN_ID=$(gh run list -w devenv.yml --limit 1 --json databaseId --jq '.[0].databaseId' -R ${{ github.repository }})
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +86,7 @@ jobs:
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/$RUN_ID"
 
           # Get test results
-          JOBS_JSON=$(gh run view $RUN_ID --json jobs)
+          JOBS_JSON=$(gh run view $RUN_ID --json jobs -R ${{ github.repository }})
 
           # Parse job results
           TOTAL_JOBS=$(echo "$JOBS_JSON" | jq '.jobs | length')
