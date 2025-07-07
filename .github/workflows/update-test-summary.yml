@@ -1,8 +1,8 @@
-name: Update Test Summary
+name: Update test summary
 
 on:
   workflow_run:
-    workflows: ["Build & Test"]
+    workflows: ["Sync rolling"]
     types: [completed]
 
 permissions:
