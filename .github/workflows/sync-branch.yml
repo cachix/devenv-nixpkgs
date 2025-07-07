@@ -10,7 +10,7 @@ permissions:
   contents: write # Push commits
 
 jobs:
-  sync-and-test:
+  sync:
     runs-on: [self-hosted, Linux]
     steps:
       - uses: actions/checkout@v4
@@ -55,9 +55,8 @@ jobs:
       - name: Push branch
         run: git push -f origin bump-rolling
 
-      - name: Trigger devenv tests
-        run: |
-          gh workflow run devenv.yml --ref main -R ${{ github.repository }}
-          echo "Devenv tests triggered. Test results will be updated automatically when tests complete."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  trigger-tests:
+    needs: sync
+    uses: ./.github/workflows/devenv.yml
+    with:
+      nixpkgs-input: "github:cachix/devenv-nixpkgs/bump-rolling"

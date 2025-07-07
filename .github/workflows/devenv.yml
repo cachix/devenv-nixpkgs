@@ -18,6 +18,13 @@ on:
         required: false
         default: "github:cachix/devenv-nixpkgs/bump-rolling"
         type: string
+  workflow_call:
+    inputs:
+      nixpkgs-input:
+        description: "Nixpkgs input to use"
+        required: false
+        default: "github:cachix/devenv-nixpkgs/bump-rolling"
+        type: string
 
 jobs:
   tests:
