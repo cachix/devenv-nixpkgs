@@ -16,32 +16,31 @@ You can check the latest [tests here](https://github.com/cachix/devenv-nixpkgs/a
 Latest test results from devenv's comprehensive test suite:
 
 <!-- TEST_RESULTS_START -->
-**Status**: 🔄 Testing in progress...
+**Status**: ❌ Some tests failing
 
-**Nixpkgs revision**: [Latest](https://github.com/NixOS/nixpkgs/commit/HEAD)
+**Nixpkgs revision**: [`3c15587533b3`](https://github.com/NixOS/nixpkgs/commit/3c15587533b37ec03503dc0b807e63b74a21c1c1)
 
-**Test run**: [View latest results](https://github.com/cachix/devenv-nixpkgs/actions/workflows/devenv.yml)
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/16121139596)
 
-**Last updated**: Never
+**Last updated**: 2025-07-08 17:23:13 UTC
 
 ### Platform Results
 
 | Platform | CLI Tests | Examples | Status |
 |----------|-----------|----------|--------|
-| Linux ARM64 | - | - | ⏳ |
-| Linux X64 | - | - | ⏳ |
-| macOS ARM64 | - | - | ⏳ |
-| macOS X64 (13) | - | - | ⏳ |
+| Linux ARM64 | ⏳ | - | ⏳ |
+| Linux X64 | ⏳ | - | ⏳ |
+| macOS ARM64 | ⏳ | - | ⏳ |
+| macOS X64 (13) | ⏳ | - | ⏳ |
 
 ### Summary
 
-- **Total test jobs**: 0
-- **Successful**: 0 ✅
-- **Failed**: 0 ❌
-- **Success rate**: 0%
+- **Total test jobs**: 262
+- **Successful**: 240 ✅
+- **Failed**: 22 ❌
+- **Success rate**: 91%
 
 <!-- TEST_RESULTS_END -->
-
 ## Bumping nixpkgs
 
 ```
