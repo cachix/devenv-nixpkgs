@@ -61,10 +61,10 @@ jobs:
           fi
 
           # Get individual job results for platform breakdown
-          LINUX_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("linux") and contains("ARM64")) | .conclusion // "unknown"')
-          LINUX_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("linux") and contains("X64")) | .conclusion // "unknown"')
-          MACOS_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("macOS") and contains("ARM64")) | .conclusion // "unknown"')
-          MACOS_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("tests") and contains("macos-13")) | .conclusion // "unknown"')
+          LINUX_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("linux") and contains("ARM64")) | .conclusion // "unknown"')
+          LINUX_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("linux") and contains("X64")) | .conclusion // "unknown"')
+          MACOS_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("macOS") and contains("ARM64")) | .conclusion // "unknown"')
+          MACOS_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("macos-13")) | .conclusion // "unknown"')
 
           # Convert job status to emoji
           status_to_emoji() {
