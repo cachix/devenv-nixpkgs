@@ -17,7 +17,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 0
+          fetch-depth: 1
+          sparse-checkout: |
+            README.md
+            .github/templates/
+          sparse-checkout-cone-mode: false
 
       - name: Configure Git
         run: |
@@ -30,10 +34,9 @@ jobs:
           RUN_ID="${{ github.event.workflow_run.id }}"
           RUN_URL="${{ github.event.workflow_run.html_url }}"
 
-          # Get nixpkgs commit hash from bump-rolling branch
-          git fetch origin bump-rolling
-          NIXPKGS_COMMIT=$(git rev-parse origin/bump-rolling)
-          NIXPKGS_SHORT=$(git rev-parse --short origin/bump-rolling)
+          # Get nixpkgs commit hash from bump-rolling branch using GitHub API
+          NIXPKGS_COMMIT=$(gh api repos/${{ github.repository }}/git/ref/heads/bump-rolling --jq '.object.sha')
+          NIXPKGS_SHORT=$(echo "$NIXPKGS_COMMIT" | cut -c1-7)
 
           # Get test results from the completed workflow
           JOBS_JSON=$(gh run view $RUN_ID --json jobs -R ${{ github.repository }})
