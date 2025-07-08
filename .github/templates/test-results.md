@@ -9,12 +9,12 @@
 
 ### Platform Results
 
-| Platform | CLI Tests | Examples | Status |
-|----------|-----------|----------|--------|
-| Linux ARM64 | {{LINUX_ARM64_CLI}} | - | {{LINUX_ARM64_CLI}} |
-| Linux X64 | {{LINUX_X64_CLI}} | - | {{LINUX_X64_CLI}} |
-| macOS ARM64 | {{MACOS_ARM64_CLI}} | - | {{MACOS_ARM64_CLI}} |
-| macOS X64 (13) | {{MACOS_X64_CLI}} | - | {{MACOS_X64_CLI}} |
+| Platform | Tests Failed/Total | Success Rate |
+|----------|-------------------|--------------|
+| Linux ARM64 | {{LINUX_ARM64_COUNT}} | {{LINUX_ARM64_SUCCESS_RATE}}% |
+| Linux X64 | {{LINUX_X64_COUNT}} | {{LINUX_X64_SUCCESS_RATE}}% |
+| macOS ARM64 | {{MACOS_ARM64_COUNT}} | {{MACOS_ARM64_SUCCESS_RATE}}% |
+| macOS X64 (13) | {{MACOS_X64_COUNT}} | {{MACOS_X64_SUCCESS_RATE}}% |
 
 ### Summary
 

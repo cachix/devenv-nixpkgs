@@ -60,32 +60,37 @@ jobs:
             STATUS="❌ Some tests failing"
           fi
 
-          # Get individual job results for platform breakdown
-          LINUX_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("linux") and contains("ARM64")) | .conclusion // "unknown"')
-          LINUX_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("linux") and contains("X64")) | .conclusion // "unknown"')
-          MACOS_ARM64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("macOS") and contains("ARM64")) | .conclusion // "unknown"')
-          MACOS_X64_CLI=$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.name | contains("trigger-tests / tests") and contains("macos-13")) | .conclusion // "unknown"')
+          # Get test counts per platform
+          LINUX_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("linux") and contains("ARM64"))] | length')
+          LINUX_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("linux") and contains("ARM64") and .conclusion == "failure")] | length')
+          LINUX_ARM64_SUCCESS_RATE=$(echo "scale=1; ($LINUX_ARM64_TOTAL - $LINUX_ARM64_FAILED) * 100 / $LINUX_ARM64_TOTAL" | bc -l)
+          
+          LINUX_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("linux") and contains("X64"))] | length')
+          LINUX_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("linux") and contains("X64") and .conclusion == "failure")] | length')
+          LINUX_X64_SUCCESS_RATE=$(echo "scale=1; ($LINUX_X64_TOTAL - $LINUX_X64_FAILED) * 100 / $LINUX_X64_TOTAL" | bc -l)
+          
+          MACOS_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("macOS") and contains("ARM64"))] | length')
+          MACOS_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("macOS") and contains("ARM64") and .conclusion == "failure")] | length')
+          MACOS_ARM64_SUCCESS_RATE=$(echo "scale=1; ($MACOS_ARM64_TOTAL - $MACOS_ARM64_FAILED) * 100 / $MACOS_ARM64_TOTAL" | bc -l)
+          
+          MACOS_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("macos-13"))] | length')
+          MACOS_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("macos-13") and .conclusion == "failure")] | length')
+          MACOS_X64_SUCCESS_RATE=$(echo "scale=1; ($MACOS_X64_TOTAL - $MACOS_X64_FAILED) * 100 / $MACOS_X64_TOTAL" | bc -l)
 
-          # Convert job status to emoji
-          status_to_emoji() {
-            case $1 in
-              "success") echo "✅" ;;
-              "failure") echo "❌" ;;
-              "cancelled") echo "⏹️" ;;
-              "skipped") echo "⏭️" ;;
-              *) echo "⏳" ;;
-            esac
-          }
+          # Handle division by zero for success rate
+          if [ "$LINUX_ARM64_TOTAL" -eq 0 ]; then LINUX_ARM64_SUCCESS_RATE="0.0"; fi
+          if [ "$LINUX_X64_TOTAL" -eq 0 ]; then LINUX_X64_SUCCESS_RATE="0.0"; fi
+          if [ "$MACOS_ARM64_TOTAL" -eq 0 ]; then MACOS_ARM64_SUCCESS_RATE="0.0"; fi
+          if [ "$MACOS_X64_TOTAL" -eq 0 ]; then MACOS_X64_SUCCESS_RATE="0.0"; fi
 
           # Get current timestamp
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
-          # Create updated README content using template
-          # Convert emoji values
-          LINUX_ARM64_CLI_EMOJI=$(status_to_emoji "$LINUX_ARM64_CLI")
-          LINUX_X64_CLI_EMOJI=$(status_to_emoji "$LINUX_X64_CLI")
-          MACOS_ARM64_CLI_EMOJI=$(status_to_emoji "$MACOS_ARM64_CLI")
-          MACOS_X64_CLI_EMOJI=$(status_to_emoji "$MACOS_X64_CLI")
+          # Create failure count strings
+          LINUX_ARM64_COUNT="$LINUX_ARM64_FAILED/$LINUX_ARM64_TOTAL"
+          LINUX_X64_COUNT="$LINUX_X64_FAILED/$LINUX_X64_TOTAL"
+          MACOS_ARM64_COUNT="$MACOS_ARM64_FAILED/$MACOS_ARM64_TOTAL"
+          MACOS_X64_COUNT="$MACOS_X64_FAILED/$MACOS_X64_TOTAL"
 
           # Use sed to substitute template variables
           sed -e "s/{{STATUS}}/$STATUS/g" \
@@ -97,10 +102,14 @@ jobs:
               -e "s/{{SUCCESSFUL_JOBS}}/$SUCCESSFUL_JOBS/g" \
               -e "s/{{FAILED_JOBS}}/$FAILED_JOBS/g" \
               -e "s/{{SUCCESS_RATE}}/$SUCCESS_RATE/g" \
-              -e "s/{{LINUX_ARM64_CLI}}/$LINUX_ARM64_CLI_EMOJI/g" \
-              -e "s/{{LINUX_X64_CLI}}/$LINUX_X64_CLI_EMOJI/g" \
-              -e "s/{{MACOS_ARM64_CLI}}/$MACOS_ARM64_CLI_EMOJI/g" \
-              -e "s/{{MACOS_X64_CLI}}/$MACOS_X64_CLI_EMOJI/g" \
+              -e "s/{{LINUX_ARM64_COUNT}}/$LINUX_ARM64_COUNT/g" \
+              -e "s/{{LINUX_X64_COUNT}}/$LINUX_X64_COUNT/g" \
+              -e "s/{{MACOS_ARM64_COUNT}}/$MACOS_ARM64_COUNT/g" \
+              -e "s/{{MACOS_X64_COUNT}}/$MACOS_X64_COUNT/g" \
+              -e "s/{{LINUX_ARM64_SUCCESS_RATE}}/$LINUX_ARM64_SUCCESS_RATE/g" \
+              -e "s/{{LINUX_X64_SUCCESS_RATE}}/$LINUX_X64_SUCCESS_RATE/g" \
+              -e "s/{{MACOS_ARM64_SUCCESS_RATE}}/$MACOS_ARM64_SUCCESS_RATE/g" \
+              -e "s/{{MACOS_X64_SUCCESS_RATE}}/$MACOS_X64_SUCCESS_RATE/g" \
               .github/templates/test-results.md > /tmp/test_results.md
 
           # Replace the test results section in README
