@@ -119,23 +119,23 @@ jobs:
           MACOS_X64_COUNT="$MACOS_X64_FAILED/$MACOS_X64_TOTAL"
 
           # Use sed to substitute template variables
-          sed -e "s/{{STATUS}}/$STATUS/g" \
-              -e "s/{{NIXPKGS_COMMIT}}/$NIXPKGS_COMMIT/g" \
-              -e "s/{{NIXPKGS_SHORT}}/$NIXPKGS_SHORT/g" \
+          sed -e "s|{{STATUS}}|$STATUS|g" \
+              -e "s|{{NIXPKGS_COMMIT}}|$NIXPKGS_COMMIT|g" \
+              -e "s|{{NIXPKGS_SHORT}}|$NIXPKGS_SHORT|g" \
               -e "s|{{RUN_URL}}|$RUN_URL|g" \
-              -e "s/{{TIMESTAMP}}/$TIMESTAMP/g" \
-              -e "s/{{TOTAL_JOBS}}/$TOTAL_JOBS/g" \
-              -e "s/{{SUCCESSFUL_JOBS}}/$SUCCESSFUL_JOBS/g" \
-              -e "s/{{FAILED_JOBS}}/$FAILED_JOBS/g" \
-              -e "s/{{SUCCESS_RATE}}/$SUCCESS_RATE/g" \
-              -e "s/{{LINUX_ARM64_COUNT}}/$LINUX_ARM64_COUNT/g" \
-              -e "s/{{LINUX_X64_COUNT}}/$LINUX_X64_COUNT/g" \
-              -e "s/{{MACOS_ARM64_COUNT}}/$MACOS_ARM64_COUNT/g" \
-              -e "s/{{MACOS_X64_COUNT}}/$MACOS_X64_COUNT/g" \
-              -e "s/{{LINUX_ARM64_SUCCESS_RATE}}/$LINUX_ARM64_SUCCESS_RATE/g" \
-              -e "s/{{LINUX_X64_SUCCESS_RATE}}/$LINUX_X64_SUCCESS_RATE/g" \
-              -e "s/{{MACOS_ARM64_SUCCESS_RATE}}/$MACOS_ARM64_SUCCESS_RATE/g" \
-              -e "s/{{MACOS_X64_SUCCESS_RATE}}/$MACOS_X64_SUCCESS_RATE/g" \
+              -e "s|{{TIMESTAMP}}|$TIMESTAMP|g" \
+              -e "s|{{TOTAL_JOBS}}|$TOTAL_JOBS|g" \
+              -e "s|{{SUCCESSFUL_JOBS}}|$SUCCESSFUL_JOBS|g" \
+              -e "s|{{FAILED_JOBS}}|$FAILED_JOBS|g" \
+              -e "s|{{SUCCESS_RATE}}|$SUCCESS_RATE|g" \
+              -e "s|{{LINUX_ARM64_COUNT}}|$LINUX_ARM64_COUNT|g" \
+              -e "s|{{LINUX_X64_COUNT}}|$LINUX_X64_COUNT|g" \
+              -e "s|{{MACOS_ARM64_COUNT}}|$MACOS_ARM64_COUNT|g" \
+              -e "s|{{MACOS_X64_COUNT}}|$MACOS_X64_COUNT|g" \
+              -e "s|{{LINUX_ARM64_SUCCESS_RATE}}|$LINUX_ARM64_SUCCESS_RATE|g" \
+              -e "s|{{LINUX_X64_SUCCESS_RATE}}|$LINUX_X64_SUCCESS_RATE|g" \
+              -e "s|{{MACOS_ARM64_SUCCESS_RATE}}|$MACOS_ARM64_SUCCESS_RATE|g" \
+              -e "s|{{MACOS_X64_SUCCESS_RATE}}|$MACOS_X64_SUCCESS_RATE|g" \
               .github/templates/test-results.md > /tmp/test_results.md
 
           # Replace the test results section in README
