@@ -4,12 +4,14 @@ Battle-tested [nixpkgs](https://github.com/NixOS/nixpkgs) using [devenv](https:/
 
 Currently, the only supported release is [rolling](https://github.com/cachix/devenv-nixpkgs/tree/rolling).
 
-Rolling is based upon [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
-plus a few patches that [devenv](https://github.com/cachix/devenv) needs which have not yet reached upstream:
+Rolling is based on [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
+plus any patches that improve the integrations and services offered by [devenv](https://github.com/cachix/devenv).
 
-All patches have been upstreamed to nixpkgs!
+## Patches
 
-You can check the latest [tests here](https://github.com/cachix/devenv-nixpkgs/actions).
+View the currently applied patches: https://github.com/cachix/devenv-nixpkgs/tree/main/patches
+
+If the directory is empty, then all patches have been upstreamed into nixpkgs.
 
 ## Test Results
 
@@ -40,7 +42,9 @@ Latest test results from devenv's comprehensive test suite:
 - **Failed**: 15 ❌
 - **Success rate**: 94%
 
-<!-- TEST_RESULTS_END -->## Bumping nixpkgs
+<!-- TEST_RESULTS_END -->
+
+## Bumping nixpkgs
 
 ```
 git fetch nixpkgs
