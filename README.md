@@ -20,17 +20,17 @@ Latest test results from devenv's comprehensive test suite:
 <!-- TEST_RESULTS_START -->
 **Status**: ❌ Some tests failing
 
-**Nixpkgs revision**: [`6bceb54`](https://github.com/NixOS/nixpkgs/commit/6bceb54ed394d44525ed12cabe65a325e10d9101)
+**Nixpkgs revision**: [`c2232ab`](https://github.com/NixOS/nixpkgs/commit/c2232ab94a8be1aa86404e7dcb806db12dca65a1)
 
-**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/16412886099)
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/16420768444)
 
-**Last updated**: 2025-07-21 12:24:37 UTC
+**Last updated**: 2025-07-21 21:14:52 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| Linux ARM64 | 8/65 | 87.6% |
+| Linux ARM64 | 9/65 | 86.1% |
 | Linux X64 | 8/65 | 87.6% |
 | macOS ARM64 | 9/65 | 86.1% |
 | macOS X64 (13) | 9/65 | 86.1% |
@@ -38,12 +38,11 @@ Latest test results from devenv's comprehensive test suite:
 ### Summary
 
 - **Total test jobs**: 262
-- **Successful**: 228 ✅
-- **Failed**: 34 ❌
-- **Success rate**: 87%
+- **Successful**: 227 ✅
+- **Failed**: 35 ❌
+- **Success rate**: 86%
 
-<!-- TEST_RESULTS_END -->
-## Bumping nixpkgs
+<!-- TEST_RESULTS_END -->## Bumping nixpkgs
 
 ```
 git fetch nixpkgs
