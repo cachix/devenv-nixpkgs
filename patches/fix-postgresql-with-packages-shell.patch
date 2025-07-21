@@ -1,0 +1,23 @@
+From 078f0f61c328788aabbcb9465cb299eaeefe5dfe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fabian=20M=C3=B6ller?= <fabianm88@gmail.com>
+Date: Tue, 15 Jul 2025 12:21:45 +0200
+Subject: [PATCH] postgresql.withPackages: propagate out from dev output
+
+---
+ pkgs/servers/sql/postgresql/generic.nix | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/pkgs/servers/sql/postgresql/generic.nix b/pkgs/servers/sql/postgresql/generic.nix
+index 127a346dbf14b9..1f1e232f302515 100644
+--- a/pkgs/servers/sql/postgresql/generic.nix
++++ b/pkgs/servers/sql/postgresql/generic.nix
+@@ -671,6 +671,9 @@ let
+               substitute "${lib.getDev postgresql}/nix-support/pg_config.env" "$dev/nix-support/pg_config.env" \
+                 --replace-fail "${postgresql}" "$out" \
+                 --replace-fail "${postgresql.man}" "$out"
++
++              # populate nix-support/propagated-build-inputs
++              eval fixupPhase
+             '';
+ 
+           passthru = {
