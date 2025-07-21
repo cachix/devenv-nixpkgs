@@ -42,7 +42,9 @@ Latest test results from devenv's comprehensive test suite:
 - **Failed**: 35 ❌
 - **Success rate**: 86%
 
-<!-- TEST_RESULTS_END -->## Bumping nixpkgs
+<!-- TEST_RESULTS_END -->
+
+## Bumping nixpkgs
 
 ```
 git fetch nixpkgs

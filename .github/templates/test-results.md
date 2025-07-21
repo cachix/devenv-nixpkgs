@@ -24,3 +24,4 @@
 - **Success rate**: {{SUCCESS_RATE}}%
 
 <!-- TEST_RESULTS_END -->
+
