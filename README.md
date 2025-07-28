@@ -22,27 +22,28 @@ Latest test results from devenv's comprehensive test suite:
 
 **Nixpkgs revision**: [`655c5f3`](https://github.com/NixOS/nixpkgs/commit/655c5f3465b8b8338c50d1e8b64a9e1aed5adbdc)
 
-**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/16429697490)
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/16564946649)
 
-**Last updated**: 2025-07-22 07:21:11 UTC
+**Last updated**: 2025-07-28 09:13:20 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| Linux ARM64 | 7/65 | 89.2% |
-| Linux X64 | 6/65 | 90.7% |
-| macOS ARM64 | 7/65 | 89.2% |
-| macOS X64 (13) | 8/65 | 87.6% |
+| Linux ARM64 | 0/0 | 0.0% |
+| Linux X64 | 0/0 | 0.0% |
+| macOS ARM64 | 0/0 | 0.0% |
+| macOS X64 (13) | 0/0 | 0.0% |
 
 ### Summary
 
-- **Total test jobs**: 262
-- **Successful**: 234 ✅
-- **Failed**: 28 ❌
-- **Success rate**: 89%
+- **Total test jobs**: 2
+- **Successful**: 0 ✅
+- **Failed**: 1 ❌
+- **Success rate**: 0%
 
 <!-- TEST_RESULTS_END -->
+
 
 
 ## Bumping nixpkgs
