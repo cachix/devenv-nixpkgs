@@ -1,14 +1,4 @@
-# TODO: make a reusable workflow in devenv
-# needs:
-#   - build
-#   - tests
-#   - examples
-#
-# Needs a way to pass in:
-#   - the repo
-#   - the ref
-#   - an optional nixpkgs override
-name: "Build & Test"
+name: Run devenv tests
 
 on:
   workflow_dispatch:

@@ -1,16 +1,36 @@
-name: Sync rolling
+name: Fetch upstream and apply patches
 
 on:
-  schedule:
-    - cron: "0 9 * * 1"
   workflow_dispatch:
+    inputs:
+      target-branch:
+        description: "Target branch to create/update"
+        required: false
+        default: "bump-rolling"
+        type: string
+      upstream-ref:
+        description: "Upstream nixpkgs ref to sync from"
+        required: false
+        default: "nixpkgs-unstable"
+        type: string
+  workflow_call:
+    inputs:
+      target-branch:
+        description: "Target branch to create/update"
+        required: false
+        default: "bump-rolling"
+        type: string
+      upstream-ref:
+        description: "Upstream nixpkgs ref to sync from"
+        required: false
+        default: "nixpkgs-unstable"
+        type: string
 
 permissions:
-  actions: write # Trigger workflows
   contents: write # Push commits
 
 jobs:
-  sync:
+  fetch-and-patch:
     runs-on: [self-hosted, Linux]
     steps:
       - uses: actions/checkout@v4
@@ -27,12 +47,12 @@ jobs:
 
       - name: Add upstream remote
         run: |
-          git remote add upstream https://github.com/NixOS/nixpkgs.git
+          git remote add upstream https://github.com/NixOS/nixpkgs.git || true
           git fetch upstream
 
       - name: Create fresh branch from upstream
         run: |
-          git checkout -B bump-rolling upstream/nixpkgs-unstable
+          git checkout -B ${{ inputs.target-branch }} upstream/${{ inputs.upstream-ref }}
 
       - name: Remove nixpkgs workflows
         run: |
@@ -53,10 +73,4 @@ jobs:
           done
 
       - name: Push branch
-        run: git push -f origin bump-rolling
-
-  trigger-tests:
-    needs: sync
-    uses: ./.github/workflows/devenv.yml
-    with:
-      nixpkgs-input: "github:cachix/devenv-nixpkgs/bump-rolling"
+        run: git push -f origin ${{ inputs.target-branch }}
