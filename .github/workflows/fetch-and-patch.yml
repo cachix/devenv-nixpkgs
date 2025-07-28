@@ -52,6 +52,8 @@ jobs:
 
       - name: Create fresh branch from upstream
         run: |
+          UPSTREAM_COMMIT=$(git rev-parse upstream/${{ inputs.upstream-ref }})
+          echo "Using upstream nixpkgs commit: $UPSTREAM_COMMIT"
           git checkout -B ${{ inputs.target-branch }} upstream/${{ inputs.upstream-ref }}
 
       - name: Remove nixpkgs workflows
