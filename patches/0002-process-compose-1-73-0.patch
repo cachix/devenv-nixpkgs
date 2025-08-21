@@ -1,6 +1,6 @@
-From 687ef8a6ffadebc51caee5d5bb02a80b269fec98 Mon Sep 17 00:00:00 2001
-From: misilelab <misileminecord@gmail.com>
-Date: Tue, 12 Aug 2025 00:33:44 +0900
+From 4a880fb247d24fbca57269af672e8f78935b0328 Mon Sep 17 00:00:00 2001
+From: Sander <hey@sandydoo.me>
+Date: Thu, 21 Aug 2025 15:32:47 +0200
 Subject: [PATCH] process-compose: 1.64.1 -> 1.73.0
 
 https://github.com/F1bonacc1/process-compose/releases/tag/v1.73.0
@@ -12,7 +12,7 @@ Co-authored-by: sandydoo <hey@sandydoo.me>
  1 file changed, 4 insertions(+), 13 deletions(-)
 
 diff --git a/pkgs/by-name/pr/process-compose/package.nix b/pkgs/by-name/pr/process-compose/package.nix
-index 00d8baa134bf..50e030c85919 100644
+index 5909434207a1..97752d959f3b 100644
 --- a/pkgs/by-name/pr/process-compose/package.nix
 +++ b/pkgs/by-name/pr/process-compose/package.nix
 @@ -2,7 +2,6 @@
@@ -33,7 +33,7 @@ index 00d8baa134bf..50e030c85919 100644
    src = fetchFromGitHub {
      owner = "F1bonacc1";
      repo = "process-compose";
-     tag = "v${version}";
+     rev = "v${version}";
 -    hash = "sha256-qv/fVfuQD7Nan5Nn1RkwXoGZuPYSRWQaojEn6MCF9BQ=";
 +    hash = "sha256-oqScez+Ms01/TyGo3HmhtEgofIbpLqQtEyQH6kxVGrw=";
      # populate values that require us to use git. By doing this in postFetch we
