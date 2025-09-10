@@ -193,7 +193,7 @@ class Patcher:
                 task = progress.add_task(f"Applying {patch_file.name}...", total=None)
 
                 try:
-                    self.repo.git.am(str(patch_file))
+                    self.repo.git.am("--reject", str(patch_file))
                     progress.update(task, description=f"✅ Applied {patch_file.name}")
                 except GitCommandError as e:
                     progress.update(
