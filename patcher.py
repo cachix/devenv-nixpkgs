@@ -6,6 +6,7 @@ Replicates the functionality of .github/workflows/fetch-and-patch.yml
 
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -160,19 +161,28 @@ class Patcher:
 
         self.console.print("✅ Committed removal of .github directory")
 
-    def apply_patches(self) -> None:
-        """Apply all patches from the patch directory."""
+    def copy_patches_to_temp(self) -> Optional[Path]:
+        """Copy patches to temporary directory before switching branches."""
         if not self.patch_dir.exists():
             self.console.print(f"⚠️  Patch directory '{self.patch_dir}' does not exist")
-            return
+            return None
 
         patch_files = sorted(self.patch_dir.glob("*.patch"))
-
         if not patch_files:
             self.console.print(f"ℹ️  No patch files found in '{self.patch_dir}'")
-            return
+            return None
 
-        self.console.print(f"🔧 Found {len(patch_files)} patch files")
+        self.console.print(f"📋 Copying {len(patch_files)} patch files to temporary directory")
+        temp_dir = Path(tempfile.mkdtemp())
+        temp_patch_dir = temp_dir / "patches"
+        shutil.copytree(self.patch_dir, temp_patch_dir)
+        
+        return temp_patch_dir
+
+    def apply_patches_from_temp(self, temp_patch_dir: Path) -> None:
+        """Apply patches from temporary directory."""
+        patch_files = sorted(temp_patch_dir.glob("*.patch"))
+        self.console.print(f"🔧 Applying {len(patch_files)} patch files")
 
         with Progress(
             SpinnerColumn(),
@@ -224,6 +234,7 @@ class Patcher:
 
     def run(self, push: bool = True) -> None:
         """Execute the complete fetch and patch workflow."""
+        temp_patch_dir = None
         try:
             self.console.print(
                 Panel.fit("🚀 Starting Patcher Workflow", style="bold blue")
@@ -232,9 +243,16 @@ class Patcher:
             self.configure_git()
             remote = self.setup_upstream_remote()
             self.fetch_upstream(remote)
+            
+            # Copy patches BEFORE switching branches
+            temp_patch_dir = self.copy_patches_to_temp()
+            
             self.create_fresh_branch()
             self.remove_github_workflows()
-            self.apply_patches()
+            
+            # Apply patches from temp directory
+            if temp_patch_dir:
+                self.apply_patches_from_temp(temp_patch_dir)
 
             if push:
                 self.push_branch()
@@ -251,6 +269,10 @@ class Patcher:
         except Exception as e:
             self.console.print(Panel.fit(f"💥 Unexpected error: {e}", style="bold red"))
             sys.exit(1)
+        finally:
+            # Clean up temporary directory
+            if temp_patch_dir and temp_patch_dir.parent.exists():
+                shutil.rmtree(temp_patch_dir.parent)
 
 
 @click.command()
