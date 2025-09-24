@@ -172,11 +172,13 @@ class Patcher:
             self.console.print(f"ℹ️  No patch files found in '{self.patch_dir}'")
             return None
 
-        self.console.print(f"📋 Copying {len(patch_files)} patch files to temporary directory")
+        self.console.print(
+            f"📋 Copying {len(patch_files)} patch files to temporary directory"
+        )
         temp_dir = Path(tempfile.mkdtemp())
         temp_patch_dir = temp_dir / "patches"
         shutil.copytree(self.patch_dir, temp_patch_dir)
-        
+
         return temp_patch_dir
 
     def apply_patches_from_temp(self, temp_patch_dir: Path) -> None:
@@ -243,13 +245,13 @@ class Patcher:
             self.configure_git()
             remote = self.setup_upstream_remote()
             self.fetch_upstream(remote)
-            
+
             # Copy patches BEFORE switching branches
             temp_patch_dir = self.copy_patches_to_temp()
-            
+
             self.create_fresh_branch()
             self.remove_github_workflows()
-            
+
             # Apply patches from temp directory
             if temp_patch_dir:
                 self.apply_patches_from_temp(temp_patch_dir)
@@ -380,4 +382,3 @@ def main(
 
 if __name__ == "__main__":
     main()
-
