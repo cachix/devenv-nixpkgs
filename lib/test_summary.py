@@ -4,6 +4,7 @@ Script to update README.md with test results from GitHub Actions workflow runs.
 Replaces the functionality of the bash script in .github/workflows/update-test-summary.yml
 """
 
+import os
 import re
 import sys
 from datetime import datetime
@@ -333,12 +334,6 @@ class TestResultsUpdater:
     help="Path to test results template",
     show_default=True,
 )
-@click.option(
-    "--github-token",
-    envvar="GH_TOKEN",
-    required=True,
-    help="GitHub token (can be set via GH_TOKEN env var)",
-)
 @click.option("-v", "--verbose", is_flag=True, help="Enable verbose logging")
 def main(
     run_id: str,
@@ -346,7 +341,6 @@ def main(
     repo: str,
     readme_path: Path,
     template_path: Path,
-    github_token: str,
     verbose: bool,
 ) -> None:
     """Update README.md with test results from a GitHub Actions workflow run."""
@@ -355,6 +349,12 @@ def main(
 
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    # Get GitHub token from environment
+    github_token = os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN")
+    if not github_token:
+        console.print("❌ GitHub token not found. Set GH_TOKEN or GITHUB_TOKEN environment variable.", style="bold red")
+        sys.exit(1)
 
     # Show configuration
     config_text = Text()
