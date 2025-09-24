@@ -228,7 +228,7 @@ class TestResultsUpdater:
 
         # Find and replace the test results section
         pattern = r'<!-- TEST_RESULTS_START -->.*?<!-- TEST_RESULTS_END -->'
-        replacement = f'<!-- TEST_RESULTS_START -->\n{test_results_content.strip()}\n<!-- TEST_RESULTS_END -->'
+        replacement = test_results_content.strip()
 
         if not re.search(pattern, readme_content, re.DOTALL):
             raise TestResultsError("Test results section markers not found in README")
