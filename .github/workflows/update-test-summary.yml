@@ -72,8 +72,8 @@ jobs:
           fi
 
           # Get test counts per platform
-          LINUX_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("linux") and contains("ARM64"))] | length')
-          LINUX_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("trigger-tests /") and contains("linux") and contains("ARM64")) and .conclusion == "failure")] | length')
+          LINUX_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("linux") and contains("ARM64"))] | length')
+          LINUX_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("linux") and contains("ARM64")) and .conclusion == "failure")] | length')
           if [ "$LINUX_ARM64_TOTAL" -gt 0 ]; then
             LINUX_ARM64_SUCCESS_RATE=$(((LINUX_ARM64_TOTAL - LINUX_ARM64_FAILED) * 1000 / LINUX_ARM64_TOTAL))
             LINUX_ARM64_SUCCESS_RATE="$((LINUX_ARM64_SUCCESS_RATE / 10)).$((LINUX_ARM64_SUCCESS_RATE % 10))"
@@ -81,8 +81,8 @@ jobs:
             LINUX_ARM64_SUCCESS_RATE="0.0"
           fi
           
-          LINUX_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("linux") and contains("X64"))] | length')
-          LINUX_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("trigger-tests /") and contains("linux") and contains("X64")) and .conclusion == "failure")] | length')
+          LINUX_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("linux") and contains("X64"))] | length')
+          LINUX_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("linux") and contains("X64")) and .conclusion == "failure")] | length')
           if [ "$LINUX_X64_TOTAL" -gt 0 ]; then
             LINUX_X64_SUCCESS_RATE=$(((LINUX_X64_TOTAL - LINUX_X64_FAILED) * 1000 / LINUX_X64_TOTAL))
             LINUX_X64_SUCCESS_RATE="$((LINUX_X64_SUCCESS_RATE / 10)).$((LINUX_X64_SUCCESS_RATE % 10))"
@@ -90,8 +90,8 @@ jobs:
             LINUX_X64_SUCCESS_RATE="0.0"
           fi
           
-          MACOS_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("macOS") and contains("ARM64"))] | length')
-          MACOS_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("trigger-tests /") and contains("macOS") and contains("ARM64")) and .conclusion == "failure")] | length')
+          MACOS_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("macOS") and contains("ARM64"))] | length')
+          MACOS_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("macOS") and contains("ARM64")) and .conclusion == "failure")] | length')
           if [ "$MACOS_ARM64_TOTAL" -gt 0 ]; then
             MACOS_ARM64_SUCCESS_RATE=$(((MACOS_ARM64_TOTAL - MACOS_ARM64_FAILED) * 1000 / MACOS_ARM64_TOTAL))
             MACOS_ARM64_SUCCESS_RATE="$((MACOS_ARM64_SUCCESS_RATE / 10)).$((MACOS_ARM64_SUCCESS_RATE % 10))"
@@ -99,8 +99,8 @@ jobs:
             MACOS_ARM64_SUCCESS_RATE="0.0"
           fi
           
-          MACOS_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("trigger-tests /") and contains("macos-13"))] | length')
-          MACOS_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("trigger-tests /") and contains("macos-13")) and .conclusion == "failure")] | length')
+          MACOS_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("macos-13"))] | length')
+          MACOS_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("macos-13")) and .conclusion == "failure")] | length')
           if [ "$MACOS_X64_TOTAL" -gt 0 ]; then
             MACOS_X64_SUCCESS_RATE=$(((MACOS_X64_TOTAL - MACOS_X64_FAILED) * 1000 / MACOS_X64_TOTAL))
             MACOS_X64_SUCCESS_RATE="$((MACOS_X64_SUCCESS_RATE / 10)).$((MACOS_X64_SUCCESS_RATE % 10))"
