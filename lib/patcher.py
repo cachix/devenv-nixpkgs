@@ -37,8 +37,8 @@ class Patcher:
         remote_url: str = "https://github.com/NixOS/nixpkgs.git",
         patch_dir: Path = Path("patches"),
         refetch: bool = True,
-        git_user_name: str = "Patcher Script",
-        git_user_email: str = "sander@cachix.org",
+        git_user_name: str = "Devenv Bot",
+        git_user_email: str = "hey@sandydoo.me",
         console: Optional[Console] = None,
     ):
         self.repo_path = repo_path
@@ -68,13 +68,17 @@ class Patcher:
         self.logger = logging.getLogger(__name__)
 
     def configure_git(self) -> None:
-        """Configure git user name and email."""
-        with self.repo.config_writer() as git_config:
-            git_config.set_value("user", "name", self.git_user_name)
-            git_config.set_value("user", "email", self.git_user_email)
+        """Configure git user name and email temporarily for this session."""
+        # Use environment variables to set git config temporarily
+        # This avoids permanently modifying the repository's .git/config
+        import os
+        os.environ['GIT_AUTHOR_NAME'] = self.git_user_name
+        os.environ['GIT_AUTHOR_EMAIL'] = self.git_user_email
+        os.environ['GIT_COMMITTER_NAME'] = self.git_user_name
+        os.environ['GIT_COMMITTER_EMAIL'] = self.git_user_email
 
         self.console.print(
-            f"✅ Configured Git user: {self.git_user_name} <{self.git_user_email}>"
+            f"✅ Configured Git user (temporary): {self.git_user_name} <{self.git_user_email}>"
         )
 
     def setup_upstream_remote(self) -> Remote:
