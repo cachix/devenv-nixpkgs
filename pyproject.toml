@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [project.scripts]
-patcher = "patcher:main"
-test-summary = "test_summary:main"
+patcher = "lib.patcher:main"
+test-summary = "lib.test_summary:main"
 
 [project.optional-dependencies]
 dev = [
