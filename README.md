@@ -24,16 +24,16 @@ Latest test results from devenv's comprehensive test suite:
 
 **Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/17910388640)
 
-**Last updated**: 2025-09-24 22:16:15 UTC
+**Last updated**: 2025-09-24 22:22:50 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| Linux ARM64 | 0/0 | 0.0% |
-| Linux X64 | 0/0 | 0.0% |
-| macOS ARM64 | 0/0 | 0.0% |
-| macOS X64 (13) | 0/0 | 0.0% |
+| Linux ARM64 | 1/65 | 98.4% |
+| Linux X64 | 2/65 | 96.9% |
+| macOS ARM64 | 7/65 | 89.2% |
+| macOS X64 (13) | 6/65 | 90.7% |
 
 ### Summary
 
@@ -43,6 +43,7 @@ Latest test results from devenv's comprehensive test suite:
 - **Success rate**: 93%
 
 <!-- TEST_RESULTS_END -->
+
 
 
 
