@@ -2,7 +2,7 @@ name: Update test summary
 
 on:
   workflow_run:
-    workflows: ["Sync rolling"]
+    workflows: ["Sync and test rolling"]
     types: [completed]
   workflow_dispatch:
     inputs:
