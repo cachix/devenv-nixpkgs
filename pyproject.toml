@@ -9,10 +9,16 @@ description = "Script to fetch upstream nixpkgs and apply patches"
 authors = [{ name = "patcher", email = "noreply@example.com" }]
 license = { text = "MIT" }
 requires-python = ">=3.8"
-dependencies = ["click>=8.0.0", "GitPython>=3.1.0", "rich>=13.0.0"]
+dependencies = [
+  "click>=8.0.0",
+  "GitPython>=3.1.0",
+  "rich>=13.0.0",
+  "PyGithub>=1.55.0",
+]
 
 [project.scripts]
 patcher = "patcher:main"
+test-summary = "test_summary:main"
 
 [project.optional-dependencies]
 dev = [
@@ -36,4 +42,3 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-

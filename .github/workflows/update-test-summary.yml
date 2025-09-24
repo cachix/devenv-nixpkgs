@@ -34,6 +34,11 @@ jobs:
           git config user.name 'GitHub Actions Bot'
           git config user.email 'actions@github.com'
 
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
       - name: Get test results and update README
         run: |
           # Get the workflow run ID from the completed devenv workflow or manual input
@@ -45,104 +50,11 @@ jobs:
             RUN_URL="${{ github.event.workflow_run.html_url }}"
           fi
 
-          # Get nixpkgs commit hash from bump-rolling branch using GitHub API
-          NIXPKGS_COMMIT=$(gh api repos/${{ github.repository }}/git/ref/heads/bump-rolling --jq '.object.sha')
-          NIXPKGS_SHORT=$(echo "$NIXPKGS_COMMIT" | cut -c1-7)
+          # Run the Python test summary updater
+          test-summary --run-id "$RUN_ID" --run-url "$RUN_URL" --repo "${{ github.repository }}"
 
-          # Get test results from the completed workflow
-          JOBS_JSON=$(gh run view $RUN_ID --json jobs -R ${{ github.repository }})
-
-          # Parse job results
-          TOTAL_JOBS=$(echo "$JOBS_JSON" | jq '.jobs | length')
-          SUCCESSFUL_JOBS=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion == "success")] | length')
-          FAILED_JOBS=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion == "failure")] | length')
-
-          # Calculate success rate
-          if [ "$TOTAL_JOBS" -gt 0 ]; then
-            SUCCESS_RATE=$((SUCCESSFUL_JOBS * 100 / TOTAL_JOBS))
-          else
-            SUCCESS_RATE=0
-          fi
-
-          # Determine overall status
-          if [ "$FAILED_JOBS" -eq 0 ]; then
-            STATUS="✅ All tests passing"
-          else
-            STATUS="❌ Some tests failing"
-          fi
-
-          # Get test counts per platform
-          LINUX_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("linux") and contains("ARM64"))] | length')
-          LINUX_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("linux") and contains("ARM64")) and .conclusion == "failure")] | length')
-          if [ "$LINUX_ARM64_TOTAL" -gt 0 ]; then
-            LINUX_ARM64_SUCCESS_RATE=$(((LINUX_ARM64_TOTAL - LINUX_ARM64_FAILED) * 1000 / LINUX_ARM64_TOTAL))
-            LINUX_ARM64_SUCCESS_RATE="$((LINUX_ARM64_SUCCESS_RATE / 10)).$((LINUX_ARM64_SUCCESS_RATE % 10))"
-          else
-            LINUX_ARM64_SUCCESS_RATE="0.0"
-          fi
-          
-          LINUX_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("linux") and contains("X64"))] | length')
-          LINUX_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("linux") and contains("X64")) and .conclusion == "failure")] | length')
-          if [ "$LINUX_X64_TOTAL" -gt 0 ]; then
-            LINUX_X64_SUCCESS_RATE=$(((LINUX_X64_TOTAL - LINUX_X64_FAILED) * 1000 / LINUX_X64_TOTAL))
-            LINUX_X64_SUCCESS_RATE="$((LINUX_X64_SUCCESS_RATE / 10)).$((LINUX_X64_SUCCESS_RATE % 10))"
-          else
-            LINUX_X64_SUCCESS_RATE="0.0"
-          fi
-          
-          MACOS_ARM64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("macOS") and contains("ARM64"))] | length')
-          MACOS_ARM64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("macOS") and contains("ARM64")) and .conclusion == "failure")] | length')
-          if [ "$MACOS_ARM64_TOTAL" -gt 0 ]; then
-            MACOS_ARM64_SUCCESS_RATE=$(((MACOS_ARM64_TOTAL - MACOS_ARM64_FAILED) * 1000 / MACOS_ARM64_TOTAL))
-            MACOS_ARM64_SUCCESS_RATE="$((MACOS_ARM64_SUCCESS_RATE / 10)).$((MACOS_ARM64_SUCCESS_RATE % 10))"
-          else
-            MACOS_ARM64_SUCCESS_RATE="0.0"
-          fi
-          
-          MACOS_X64_TOTAL=$(echo "$JOBS_JSON" | jq '[.jobs[] | select(.name | contains("run-tests /") and contains("macos-13"))] | length')
-          MACOS_X64_FAILED=$(echo "$JOBS_JSON" | jq '[.jobs[] | select((.name | contains("run-tests /") and contains("macos-13")) and .conclusion == "failure")] | length')
-          if [ "$MACOS_X64_TOTAL" -gt 0 ]; then
-            MACOS_X64_SUCCESS_RATE=$(((MACOS_X64_TOTAL - MACOS_X64_FAILED) * 1000 / MACOS_X64_TOTAL))
-            MACOS_X64_SUCCESS_RATE="$((MACOS_X64_SUCCESS_RATE / 10)).$((MACOS_X64_SUCCESS_RATE % 10))"
-          else
-            MACOS_X64_SUCCESS_RATE="0.0"
-          fi
-
-
-          # Get current timestamp
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          # Create failure count strings
-          LINUX_ARM64_COUNT="$LINUX_ARM64_FAILED/$LINUX_ARM64_TOTAL"
-          LINUX_X64_COUNT="$LINUX_X64_FAILED/$LINUX_X64_TOTAL"
-          MACOS_ARM64_COUNT="$MACOS_ARM64_FAILED/$MACOS_ARM64_TOTAL"
-          MACOS_X64_COUNT="$MACOS_X64_FAILED/$MACOS_X64_TOTAL"
-
-          # Use sed to substitute template variables
-          sed -e "s|{{STATUS}}|$STATUS|g" \
-              -e "s|{{NIXPKGS_COMMIT}}|$NIXPKGS_COMMIT|g" \
-              -e "s|{{NIXPKGS_SHORT}}|$NIXPKGS_SHORT|g" \
-              -e "s|{{RUN_URL}}|$RUN_URL|g" \
-              -e "s|{{TIMESTAMP}}|$TIMESTAMP|g" \
-              -e "s|{{TOTAL_JOBS}}|$TOTAL_JOBS|g" \
-              -e "s|{{SUCCESSFUL_JOBS}}|$SUCCESSFUL_JOBS|g" \
-              -e "s|{{FAILED_JOBS}}|$FAILED_JOBS|g" \
-              -e "s|{{SUCCESS_RATE}}|$SUCCESS_RATE|g" \
-              -e "s|{{LINUX_ARM64_COUNT}}|$LINUX_ARM64_COUNT|g" \
-              -e "s|{{LINUX_X64_COUNT}}|$LINUX_X64_COUNT|g" \
-              -e "s|{{MACOS_ARM64_COUNT}}|$MACOS_ARM64_COUNT|g" \
-              -e "s|{{MACOS_X64_COUNT}}|$MACOS_X64_COUNT|g" \
-              -e "s|{{LINUX_ARM64_SUCCESS_RATE}}|$LINUX_ARM64_SUCCESS_RATE|g" \
-              -e "s|{{LINUX_X64_SUCCESS_RATE}}|$LINUX_X64_SUCCESS_RATE|g" \
-              -e "s|{{MACOS_ARM64_SUCCESS_RATE}}|$MACOS_ARM64_SUCCESS_RATE|g" \
-              -e "s|{{MACOS_X64_SUCCESS_RATE}}|$MACOS_X64_SUCCESS_RATE|g" \
-              .github/templates/test-results.md > /tmp/test_results.md
-
-          # Replace the test results section in README
-          sed -i '/<!-- TEST_RESULTS_START -->/,/<!-- TEST_RESULTS_END -->/{ 
-            /<!-- TEST_RESULTS_START -->/r /tmp/test_results.md
-            /<!-- TEST_RESULTS_START -->/,/<!-- TEST_RESULTS_END -->/d
-          }' README.md
+          # Get nixpkgs short hash for commit message
+          NIXPKGS_SHORT=$(gh api repos/${{ github.repository }}/git/ref/heads/bump-rolling --jq '.object.sha' | cut -c1-7)
 
           # Commit the updated README
           git add README.md
