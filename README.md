@@ -9,7 +9,7 @@ plus any patches that improve the integrations and services offered by [devenv](
 
 ## Patches
 
-View the currently applied patches: https://github.com/cachix/devenv-nixpkgs/tree/main/patches
+View the currently applied patches: <https://github.com/cachix/devenv-nixpkgs/tree/main/patches>
 
 If the directory is empty, then all patches have been upstreamed into nixpkgs.
 
@@ -44,16 +44,60 @@ Latest test results from devenv's comprehensive test suite:
 
 <!-- TEST_RESULTS_END -->
 
+## Deployment
 
+This repository maintains (semi-)automated weekly updates from [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable).
+The system automatically:
 
+- Fetches the latest nixpkgs-unstable commits
+- Applies any patches from the [patches directory](./patches)
+- Runs the comprehensive devenv test suite across multiple platforms
+- Updates the `bump-rolling` branch weekly every Monday at 9:00 UTC
 
+### Manual Updates
 
-## Bumping nixpkgs
+To manually trigger an update outside the weekly schedule:
 
-```
-git fetch nixpkgs
-git checkout nixpkgs/nixpkgs-unstable -B bump-rolling
-git push origin bump-rolling -f
-```
+1. **Add patches** (if needed): Place `.patch` files in the [patches directory](./patches)
 
-Then trigger a new test run on the [CI](https://github.com/cachix/devenv-nixpkgs/actions/workflows/devenv.yml).
+2. **Run the sync workflow**:
+
+   ```bash
+   gh workflow run "Sync and test rolling"
+   ```
+
+   You can also specify custom parameters:
+
+   ```bash
+   gh workflow run "Sync and test rolling" \
+     -f target-branch=bump-rolling \
+     -f upstream-ref=nixpkgs-unstable
+   ```
+
+### Release Process
+
+To promote changes from `bump-rolling` to the stable `rolling` branch:
+
+1. **Fetch latest changes**:
+
+   ```bash
+   git fetch origin
+   ```
+
+2. **Create a timestamped backup** of the current rolling branch:
+
+   ```bash
+   git checkout rolling
+   git checkout -b rolling-$(date +%Y-%m-%d)
+   git push origin rolling-$(date +%Y-%m-%d)
+   ```
+
+3. **Reset rolling to bump-rolling** and deploy:
+
+   ```bash
+   git checkout rolling
+   git reset --hard origin/bump-rolling
+   git push origin rolling --force-with-lease
+   ```
+
+This ensures that the stable `rolling` branch contains thoroughly tested changes while maintaining historical snapshots of previous releases.
