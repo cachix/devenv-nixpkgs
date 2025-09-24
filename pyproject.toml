@@ -1,37 +1,32 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "patcher"
+name = "devenv-nixpkgs-tools"
 version = "0.1.0"
-description = "Script to fetch upstream nixpkgs and apply patches"
-authors = [{ name = "patcher", email = "noreply@example.com" }]
+description = "Tools for maintaining devenv-nixpkgs"
+authors = [{ name = "Cachix", email = "support@cachix.org" }]
 license = { text = "MIT" }
 requires-python = ">=3.8"
 dependencies = [
   "click>=8.0.0",
   "GitPython>=3.1.0",
-  "rich>=13.0.0",
   "PyGithub>=1.55.0",
+  "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "black>=22.0",
+  "isort>=5.0",
+  "mypy>=1.0",
+  "pytest>=6.0",
 ]
 
 [project.scripts]
 patcher = "lib.patcher:main"
 test-summary = "lib.test_summary:main"
 
-[project.optional-dependencies]
-dev = [
-  "pytest>=6.0",
-  "black>=22.0",
-  "isort>=5.0",
-  "mypy>=1.0",
-  "types-setuptools",
-]
-
 [tool.black]
 line-length = 100
-target-version = ['py38']
+target-version = ["py38"]
 
 [tool.isort]
 profile = "black"
@@ -39,6 +34,13 @@ line_length = 100
 
 [tool.mypy]
 python_version = "3.8"
+disallow_untyped_defs = true
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["lib"]
