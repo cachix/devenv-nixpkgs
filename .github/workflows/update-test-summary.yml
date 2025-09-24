@@ -34,12 +34,14 @@ jobs:
           git config user.name 'GitHub Actions Bot'
           git config user.email 'actions@github.com'
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
+      - name: Setup devenv environment
+        uses: cachix/install-nix-action@v31
+
+      - name: Install devenv
+        run: nix profile install github:cachix/devenv/latest
 
       - name: Get test results and update README
+        shell: devenv shell bash -- -e {0}
         run: |
           # Get the workflow run ID from the completed devenv workflow or manual input
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
