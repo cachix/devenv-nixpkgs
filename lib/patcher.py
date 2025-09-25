@@ -316,13 +316,13 @@ class Patcher:
 @click.option("--no-refetch", is_flag=True, help="Skip fetching from upstream remote")
 @click.option(
     "--git-user-name",
-    default="Patcher Script",
+    default="Devenv Bot",
     help="Git user name for commits",
     show_default=True,
 )
 @click.option(
     "--git-user-email",
-    default="noreply@example.com",
+    default="hey@sandydoo.me",
     help="Git user email for commits",
     show_default=True,
 )
