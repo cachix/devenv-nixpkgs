@@ -24,10 +24,6 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
-          sparse-checkout: |
-            README.md
-            .github/templates/
-          sparse-checkout-cone-mode: false
 
       - name: Configure Git
         run: |
