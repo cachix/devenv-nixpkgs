@@ -26,7 +26,7 @@ jobs:
             [self-hosted, linux, ARM64],
             [self-hosted, linux, X64],
             [self-hosted, macOS, ARM64],
-            [macos-13],
+            [macos-15-intel],
           ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -79,7 +79,7 @@ jobs:
             [self-hosted, linux, ARM64],
             [self-hosted, linux, X64],
             [self-hosted, macOS, ARM64],
-            [macos-13],
+            [macos-15-intel],
           ]
         example: ${{ fromJSON(needs.generate-examples.outputs.examples) }}
     runs-on: ${{ matrix.os }}

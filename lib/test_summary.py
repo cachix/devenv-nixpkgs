@@ -125,8 +125,8 @@ class TestResultsUpdater:
                     if conclusion == 'failure':
                         stats['macos_arm64_failed'] += 1
 
-                # macOS X64 (macos-13)
-                elif 'macos-13' in name:
+                # macOS X64 (macos-15-intel)
+                elif 'macos-15-intel' in name:
                     stats['macos_x64_total'] += 1
                     if conclusion == 'failure':
                         stats['macos_x64_failed'] += 1
