@@ -32,9 +32,10 @@ jobs:
             system: x86_64-darwin
     uses: cachix/devenv/.github/workflows/test.yml@main
     with:
+      repository: cachix/devenv
+      nixpkgs-input: ${{ inputs.nixpkgs-input }}
       system: ${{ matrix.system }}
       runs-on: ${{ toJSON(matrix.os) }}
-      nixpkgs-input: ${{ inputs.nixpkgs-input }}
     secrets: inherit
 
   examples:
@@ -52,7 +53,8 @@ jobs:
             system: x86_64-darwin
     uses: cachix/devenv/.github/workflows/examples.yml@main
     with:
+      repository: cachix/devenv
+      nixpkgs-input: ${{ inputs.nixpkgs-input }}
       system: ${{ matrix.system }}
       runs-on: ${{ toJSON(matrix.os) }}
-      nixpkgs-input: ${{ inputs.nixpkgs-input }}
     secrets: inherit
