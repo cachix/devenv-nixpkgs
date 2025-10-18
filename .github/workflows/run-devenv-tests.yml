@@ -21,85 +21,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          [
-            [self-hosted, linux, ARM64],
-            [self-hosted, linux, X64],
-            [self-hosted, macOS, ARM64],
-            [macos-15-intel],
-          ]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: cachix/devenv
-          ref: main
-      - uses: cachix/install-nix-action@v30
-        with:
-          extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v15
-        with:
-          name: devenv
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - name: Build devenv
-        run: |
-          nix build
-          echo "$PWD/result/bin" >> $GITHUB_PATH
-      - name: Run devenv-test-cli
-        run: devenv --override-input nixpkgs ${{ inputs.nixpkgs-input }} shell devenv-test-cli
-      - name: Run tests
-        run: devenv-run-tests --override-input nixpkgs ${{ inputs.nixpkgs-input }} tests
-
-  generate-examples:
-    runs-on: [self-hosted, linux, X64]
-    outputs:
-      examples: ${{ steps.set-examples.outputs.examples }}
-    steps:
-      - name: Checkout base repo
-        uses: actions/checkout@v4
-        with:
-          repository: cachix/devenv
-          ref: main
-      - name: Fetch examples to run
-        id: set-examples
-        run: |
-          set -euxo pipefail
-          json=$(nix shell nixpkgs#tree -c tree -J -L 1 examples | nix shell nixpkgs#jq -c jq -c '[.[0].contents[] | .name]')
-          echo "examples=$json" >> $GITHUB_OUTPUT
+        include:
+          - os: [self-hosted, linux, ARM64]
+            system: aarch64-linux
+          - os: [self-hosted, linux, X64]
+            system: x86_64-linux
+          - os: [self-hosted, macOS, ARM64]
+            system: aarch64-darwin
+          - os: [macos-15-intel]
+            system: x86_64-darwin
+    uses: cachix/devenv/.github/workflows/test.yml@main
+    with:
+      system: ${{ matrix.system }}
+      runs-on: ${{ toJSON(matrix.os) }}
+      nixpkgs-input: ${{ inputs.nixpkgs-input }}
+    secrets: inherit
 
   examples:
-    name: ${{ matrix.example }} (${{ join(matrix.os) }})
-    needs: [generate-examples]
     strategy:
       fail-fast: false
       matrix:
-        os:
-          [
-            [self-hosted, linux, ARM64],
-            [self-hosted, linux, X64],
-            [self-hosted, macOS, ARM64],
-            [macos-15-intel],
-          ]
-        example: ${{ fromJSON(needs.generate-examples.outputs.examples) }}
-    runs-on: ${{ matrix.os }}
-    steps:
-      - run: sudo rm -rf /opt&
-      - uses: actions/checkout@v4
-        with:
-          repository: cachix/devenv
-          ref: main
-      - uses: cachix/install-nix-action@v30
-        with:
-          extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v15
-        with:
-          name: devenv
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - name: Build devenv
-        run: |
-          nix build
-          echo "$PWD/result/bin" >> $GITHUB_PATH
-      - name: Run examples
-        run: devenv-run-tests --override-input nixpkgs ${{ inputs.nixpkgs-input }} --only ${{ matrix.example }} examples
+        include:
+          - os: [self-hosted, linux, ARM64]
+            system: aarch64-linux
+          - os: [self-hosted, linux, X64]
+            system: x86_64-linux
+          - os: [self-hosted, macOS, ARM64]
+            system: aarch64-darwin
+          - os: [macos-15-intel]
+            system: x86_64-darwin
+    uses: cachix/devenv/.github/workflows/examples.yml@main
+    with:
+      system: ${{ matrix.system }}
+      runs-on: ${{ toJSON(matrix.os) }}
+      nixpkgs-input: ${{ inputs.nixpkgs-input }}
+    secrets: inherit
