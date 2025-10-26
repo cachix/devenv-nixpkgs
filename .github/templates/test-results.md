@@ -11,10 +11,10 @@
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| Linux ARM64 | {{LINUX_ARM64_COUNT}} | {{LINUX_ARM64_SUCCESS_RATE}}% |
-| Linux X64 | {{LINUX_X64_COUNT}} | {{LINUX_X64_SUCCESS_RATE}}% |
-| macOS ARM64 | {{MACOS_ARM64_COUNT}} | {{MACOS_ARM64_SUCCESS_RATE}}% |
-| macOS X64 (13) | {{MACOS_X64_COUNT}} | {{MACOS_X64_SUCCESS_RATE}}% |
+| aarch64-linux | {{AARCH64_LINUX_COUNT}} | {{AARCH64_LINUX_SUCCESS_RATE}}% |
+| x86_64-linux | {{X86_64_LINUX_COUNT}} | {{X86_64_LINUX_SUCCESS_RATE}}% |
+| aarch64-darwin | {{AARCH64_DARWIN_COUNT}} | {{AARCH64_DARWIN_SUCCESS_RATE}}% |
+| x86_64-darwin | {{X86_64_DARWIN_COUNT}} | {{X86_64_DARWIN_SUCCESS_RATE}}% |
 
 ### Summary
 

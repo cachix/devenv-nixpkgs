@@ -85,14 +85,14 @@ class TestResultsUpdater:
             'total_jobs': len(jobs),
             'successful_jobs': 0,
             'failed_jobs': 0,
-            'linux_arm64_total': 0,
-            'linux_arm64_failed': 0,
-            'linux_x64_total': 0,
-            'linux_x64_failed': 0,
-            'macos_arm64_total': 0,
-            'macos_arm64_failed': 0,
-            'macos_x64_total': 0,
-            'macos_x64_failed': 0,
+            'aarch64_linux_total': 0,
+            'aarch64_linux_failed': 0,
+            'x86_64_linux_total': 0,
+            'x86_64_linux_failed': 0,
+            'aarch64_darwin_total': 0,
+            'aarch64_darwin_failed': 0,
+            'x86_64_darwin_total': 0,
+            'x86_64_darwin_failed': 0,
         }
 
         for job in jobs:
@@ -107,29 +107,29 @@ class TestResultsUpdater:
 
             # Platform-specific stats (only for test jobs)
             if 'run-tests /' in name:
-                # Linux ARM64
+                # aarch64-linux
                 if 'linux' in name and 'ARM64' in name:
-                    stats['linux_arm64_total'] += 1
+                    stats['aarch64_linux_total'] += 1
                     if conclusion == 'failure':
-                        stats['linux_arm64_failed'] += 1
+                        stats['aarch64_linux_failed'] += 1
 
-                # Linux X64
+                # x86_64-linux
                 elif 'linux' in name and 'X64' in name:
-                    stats['linux_x64_total'] += 1
+                    stats['x86_64_linux_total'] += 1
                     if conclusion == 'failure':
-                        stats['linux_x64_failed'] += 1
+                        stats['x86_64_linux_failed'] += 1
 
-                # macOS ARM64
+                # aarch64-darwin
                 elif 'macOS' in name and 'ARM64' in name:
-                    stats['macos_arm64_total'] += 1
+                    stats['aarch64_darwin_total'] += 1
                     if conclusion == 'failure':
-                        stats['macos_arm64_failed'] += 1
+                        stats['aarch64_darwin_failed'] += 1
 
-                # macOS X64 (macos-15-intel)
+                # x86_64-darwin (macos-15-intel)
                 elif 'macos-15-intel' in name:
-                    stats['macos_x64_total'] += 1
+                    stats['x86_64_darwin_total'] += 1
                     if conclusion == 'failure':
-                        stats['macos_x64_failed'] += 1
+                        stats['x86_64_darwin_failed'] += 1
 
         return stats
 
@@ -138,10 +138,10 @@ class TestResultsUpdater:
         rates = {}
 
         platforms = [
-            ('linux_arm64', 'linux_arm64_total', 'linux_arm64_failed'),
-            ('linux_x64', 'linux_x64_total', 'linux_x64_failed'),
-            ('macos_arm64', 'macos_arm64_total', 'macos_arm64_failed'),
-            ('macos_x64', 'macos_x64_total', 'macos_x64_failed'),
+            ('aarch64_linux', 'aarch64_linux_total', 'aarch64_linux_failed'),
+            ('x86_64_linux', 'x86_64_linux_total', 'x86_64_linux_failed'),
+            ('aarch64_darwin', 'aarch64_darwin_total', 'aarch64_darwin_failed'),
+            ('x86_64_darwin', 'x86_64_darwin_total', 'x86_64_darwin_failed'),
         ]
 
         for platform, total_key, failed_key in platforms:
@@ -187,10 +187,10 @@ class TestResultsUpdater:
         timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
         # Create platform count strings
-        linux_arm64_count = f"{stats['linux_arm64_failed']}/{stats['linux_arm64_total']}"
-        linux_x64_count = f"{stats['linux_x64_failed']}/{stats['linux_x64_total']}"
-        macos_arm64_count = f"{stats['macos_arm64_failed']}/{stats['macos_arm64_total']}"
-        macos_x64_count = f"{stats['macos_x64_failed']}/{stats['macos_x64_total']}"
+        aarch64_linux_count = f"{stats['aarch64_linux_failed']}/{stats['aarch64_linux_total']}"
+        x86_64_linux_count = f"{stats['x86_64_linux_failed']}/{stats['x86_64_linux_total']}"
+        aarch64_darwin_count = f"{stats['aarch64_darwin_failed']}/{stats['aarch64_darwin_total']}"
+        x86_64_darwin_count = f"{stats['x86_64_darwin_failed']}/{stats['x86_64_darwin_total']}"
 
         # Replace template variables
         replacements = {
@@ -203,14 +203,14 @@ class TestResultsUpdater:
             '{{SUCCESSFUL_JOBS}}': str(stats['successful_jobs']),
             '{{FAILED_JOBS}}': str(stats['failed_jobs']),
             '{{SUCCESS_RATE}}': str(success_rate),
-            '{{LINUX_ARM64_COUNT}}': linux_arm64_count,
-            '{{LINUX_X64_COUNT}}': linux_x64_count,
-            '{{MACOS_ARM64_COUNT}}': macos_arm64_count,
-            '{{MACOS_X64_COUNT}}': macos_x64_count,
-            '{{LINUX_ARM64_SUCCESS_RATE}}': rates['linux_arm64_success_rate'],
-            '{{LINUX_X64_SUCCESS_RATE}}': rates['linux_x64_success_rate'],
-            '{{MACOS_ARM64_SUCCESS_RATE}}': rates['macos_arm64_success_rate'],
-            '{{MACOS_X64_SUCCESS_RATE}}': rates['macos_x64_success_rate'],
+            '{{AARCH64_LINUX_COUNT}}': aarch64_linux_count,
+            '{{X86_64_LINUX_COUNT}}': x86_64_linux_count,
+            '{{AARCH64_DARWIN_COUNT}}': aarch64_darwin_count,
+            '{{X86_64_DARWIN_COUNT}}': x86_64_darwin_count,
+            '{{AARCH64_LINUX_SUCCESS_RATE}}': rates['aarch64_linux_success_rate'],
+            '{{X86_64_LINUX_SUCCESS_RATE}}': rates['x86_64_linux_success_rate'],
+            '{{AARCH64_DARWIN_SUCCESS_RATE}}': rates['aarch64_darwin_success_rate'],
+            '{{X86_64_DARWIN_SUCCESS_RATE}}': rates['x86_64_darwin_success_rate'],
         }
 
         content = template_content
