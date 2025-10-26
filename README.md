@@ -84,20 +84,21 @@ To promote changes from `bump-rolling` to the stable `rolling` branch:
    git fetch origin
    ```
 
-2. **Create a timestamped backup** of the current rolling branch:
-
-   ```bash
-   git checkout rolling
-   git checkout -b rolling-$(date +%Y-%m-%d)
-   git push origin rolling-$(date +%Y-%m-%d)
-   ```
-
-3. **Reset rolling to bump-rolling** and deploy:
+2. **Reset rolling to bump-rolling** and deploy:
 
    ```bash
    git checkout rolling
    git reset --hard origin/bump-rolling
    git push origin rolling --force-with-lease
+   ```
+
+3. **Create a timestamped backup** of the released rolling branch:
+
+   This will safe-guard the release from garbage-collection when `rolling` is bumped again.
+
+   ```bash
+   git checkout -b rolling-$(date +%Y-%m-%d)
+   git push origin rolling-$(date +%Y-%m-%d)
    ```
 
 This ensures that the stable `rolling` branch contains thoroughly tested changes while maintaining historical snapshots of previous releases.
