@@ -20,27 +20,27 @@ Latest test results from devenv's comprehensive test suite:
 <!-- TEST_RESULTS_START -->
 **Status**: ❌ Some tests failing
 
-**Nixpkgs revision**: [`9e1a277`](https://github.com/NixOS/nixpkgs/commit/9e1a2777c380206c504a66b8a594b04a7478d399)
+**Nixpkgs revision**: [`538a512`](https://github.com/NixOS/nixpkgs/commit/538a5124359f0b3d466e1160378c87887e3b51a4)
 
-**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/20569203835)
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/20585331601)
 
-**Last updated**: 2025-12-29 11:15:16 UTC
+**Last updated**: 2025-12-30 02:55:29 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| aarch64-linux | 13/70 | 81.4% |
-| x86_64-linux | 15/71 | 78.8% |
-| aarch64-darwin | 19/71 | 73.2% |
-| x86_64-darwin | 17/71 | 76.0% |
+| aarch64-linux | 3/71 | 95.7% |
+| x86_64-linux | 4/71 | 94.3% |
+| aarch64-darwin | 7/71 | 90.1% |
+| x86_64-darwin | 6/71 | 91.5% |
 
 ### Summary
 
-- **Total test jobs**: 284
-- **Successful**: 220 ✅
-- **Failed**: 64 ❌
-- **Success rate**: 77%
+- **Total test jobs**: 285
+- **Successful**: 265 ✅
+- **Failed**: 20 ❌
+- **Success rate**: 92%
 
 <!-- TEST_RESULTS_END -->
 
