@@ -9,15 +9,13 @@ plus any patches that improve the integrations and services offered by [devenv](
 
 ## Usage
 
-```nix
-{
-  inputs.nixpkgs.url = "github:cachix/devenv-nixpkgs/rolling";
+In your `devenv.yaml`:
 
-  outputs = { nixpkgs, ... }: {
-    # Use legacyPackages
-    packages.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.hello;
-  };
-}
+```yaml
+inputs:
+  nixpkgs:
+    url: github:cachix/devenv-nixpkgs/rolling
+    flake: false
 ```
 
 ## Patches

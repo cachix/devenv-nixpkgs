@@ -28,39 +28,20 @@ jobs:
           SHORT=$(nix flake metadata --json | jq -r '.locks.nodes["nixpkgs-src"].locked.rev' | cut -c1-7)
           echo "short=$SHORT" >> "$GITHUB_OUTPUT"
 
-      - name: Create or update PR
+      - name: Ensure rolling branch exists
         run: |
-          # Check if rolling branch exists
           if ! git ls-remote --exit-code origin rolling; then
-            echo "Creating rolling branch from main"
-            git checkout -b rolling
-            git push origin rolling
+            git push origin main:rolling
           fi
 
-          # Check if there are changes to release
-          if git diff --quiet origin/rolling origin/main; then
-            echo "No changes to release"
-            exit 0
-          fi
+      - name: Create release PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: main
+          base: rolling
+          title: "Release nixpkgs ${{ steps.nixpkgs.outputs.short }}"
+          body: |
+            Promotes main to rolling with nixpkgs ${{ steps.nixpkgs.outputs.short }}.
 
-          # Create or update PR
-          PR_EXISTS=$(gh pr list --base rolling --head main --json number --jq '.[0].number')
-
-          if [ -n "$PR_EXISTS" ]; then
-            echo "PR #$PR_EXISTS already exists"
-          else
-            gh pr create \
-              --base rolling \
-              --head main \
-              --title "Release nixpkgs ${{ steps.nixpkgs.outputs.short }}" \
-              --body "Promotes main to rolling with nixpkgs ${{ steps.nixpkgs.outputs.short }}.
-
-## Changes
-
-$(git log --oneline origin/rolling..origin/main)
-
----
-Auto-generated after successful test run."
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            ---
+            Auto-generated after successful test run.

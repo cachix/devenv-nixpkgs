@@ -13,14 +13,9 @@ jobs:
     runs-on: [self-hosted, Linux]
     outputs:
       nixpkgs-rev: ${{ steps.nixpkgs.outputs.short }}
-      changed: ${{ steps.commit.outputs.changed }}
+      changes_detected: ${{ steps.commit.outputs.changes_detected }}
     steps:
       - uses: actions/checkout@v5
-
-      - name: Configure Git
-        run: |
-          git config user.name 'GitHub Actions Bot'
-          git config user.email 'actions@github.com'
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -42,20 +37,14 @@ jobs:
 
       - name: Commit and push
         id: commit
-        run: |
-          git add flake.lock
-          if git diff --cached --quiet; then
-            echo "No changes to flake.lock"
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            git commit -m "chore: update nixpkgs to ${{ steps.nixpkgs.outputs.short }}"
-            git push origin main
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update nixpkgs to ${{ steps.nixpkgs.outputs.short }}"
+          file_pattern: flake.lock
 
   test:
     needs: update
-    if: needs.update.outputs.changed == 'true'
+    if: needs.update.outputs.changes_detected == 'true'
     uses: ./.github/workflows/run-devenv-tests.yml
     with:
       nixpkgs-input: "github:cachix/devenv-nixpkgs/main"
