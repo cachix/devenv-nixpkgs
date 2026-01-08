@@ -2,7 +2,7 @@ name: Update test summary
 
 on:
   workflow_run:
-    workflows: ["Sync and test rolling"]
+    workflows: ["Update and test"]
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -12,12 +12,11 @@ on:
         type: string
 
 permissions:
-  contents: write # Push commits to main branch
+  contents: write
 
 jobs:
   update-readme:
     runs-on: [self-hosted, Linux]
-    # Only run if the devenv workflow was triggered by sync-branch or manually triggered
     if: github.event.workflow_run.head_branch == 'main' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v5
@@ -30,7 +29,7 @@ jobs:
           git config user.name 'GitHub Actions Bot'
           git config user.email 'actions@github.com'
 
-      - name: Setup devenv environment
+      - name: Install Nix
         uses: cachix/install-nix-action@v31
 
       - name: Install devenv
@@ -39,7 +38,6 @@ jobs:
       - name: Get test results and update README
         shell: devenv shell bash -- -e {0}
         run: |
-          # Get the workflow run ID from the completed devenv workflow or manual input
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             RUN_ID="${{ inputs.run_id }}"
             RUN_URL="https://github.com/${{ github.repository }}/actions/runs/$RUN_ID"
@@ -48,15 +46,13 @@ jobs:
             RUN_URL="${{ github.event.workflow_run.html_url }}"
           fi
 
-          # Run the Python test summary updater
           test-summary --run-id "$RUN_ID" --run-url "$RUN_URL" --repo "${{ github.repository }}"
 
-          # Get nixpkgs short hash for commit message
-          NIXPKGS_SHORT=$(gh api repos/${{ github.repository }}/git/ref/heads/bump-rolling --jq '.object.sha' | cut -c1-7)
+          # Get nixpkgs short hash from flake.lock
+          NIXPKGS_SHORT=$(nix flake metadata --json | jq -r '.locks.nodes["nixpkgs-src"].locked.rev' | cut -c1-7)
 
-          # Commit the updated README
           git add README.md
-          git commit -m "ci: update test results for nixpkgs $NIXPKGS_SHORT"
+          git diff --cached --quiet || git commit -m "ci: update test results for nixpkgs $NIXPKGS_SHORT"
           git push origin main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

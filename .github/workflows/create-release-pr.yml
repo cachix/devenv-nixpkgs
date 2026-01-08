@@ -1,0 +1,66 @@
+name: Create release PR
+
+on:
+  workflow_run:
+    workflows: ["Update and test"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: [self-hosted, Linux]
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Get nixpkgs revision
+        id: nixpkgs
+        run: |
+          SHORT=$(nix flake metadata --json | jq -r '.locks.nodes["nixpkgs-src"].locked.rev' | cut -c1-7)
+          echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update PR
+        run: |
+          # Check if rolling branch exists
+          if ! git ls-remote --exit-code origin rolling; then
+            echo "Creating rolling branch from main"
+            git checkout -b rolling
+            git push origin rolling
+          fi
+
+          # Check if there are changes to release
+          if git diff --quiet origin/rolling origin/main; then
+            echo "No changes to release"
+            exit 0
+          fi
+
+          # Create or update PR
+          PR_EXISTS=$(gh pr list --base rolling --head main --json number --jq '.[0].number')
+
+          if [ -n "$PR_EXISTS" ]; then
+            echo "PR #$PR_EXISTS already exists"
+          else
+            gh pr create \
+              --base rolling \
+              --head main \
+              --title "Release nixpkgs ${{ steps.nixpkgs.outputs.short }}" \
+              --body "Promotes main to rolling with nixpkgs ${{ steps.nixpkgs.outputs.short }}.
+
+## Changes
+
+$(git log --oneline origin/rolling..origin/main)
+
+---
+Auto-generated after successful test run."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

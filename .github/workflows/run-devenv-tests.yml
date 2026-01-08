@@ -6,14 +6,14 @@ on:
       nixpkgs-input:
         description: "Nixpkgs input to use"
         required: false
-        default: "github:cachix/devenv-nixpkgs/bump-rolling"
+        default: "github:cachix/devenv-nixpkgs/main"
         type: string
   workflow_call:
     inputs:
       nixpkgs-input:
         description: "Nixpkgs input to use"
         required: false
-        default: "github:cachix/devenv-nixpkgs/bump-rolling"
+        default: "github:cachix/devenv-nixpkgs/main"
         type: string
 
 jobs:
