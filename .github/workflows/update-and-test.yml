@@ -1,0 +1,51 @@
+name: Update and test
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: [self-hosted, Linux]
+    outputs:
+      nixpkgs-rev: ${{ steps.nixpkgs.outputs.short }}
+      changes_detected: ${{ steps.commit.outputs.changes_detected }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Update flake.lock
+        run: nix flake update
+
+      - name: Get nixpkgs revision
+        id: nixpkgs
+        run: |
+          REV=$(nix flake metadata --json | jq -r '.locks.nodes["nixpkgs-src"].locked.rev')
+          SHORT=$(echo "$REV" | cut -c1-7)
+          echo "rev=$REV" >> "$GITHUB_OUTPUT"
+          echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+          echo "Nixpkgs revision: $SHORT"
+
+      - name: Validate patches apply
+        run: nix build .#legacyPackages.x86_64-linux.hello --no-link
+
+      - name: Commit and push
+        id: commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update nixpkgs to ${{ steps.nixpkgs.outputs.short }}"
+          file_pattern: flake.lock
+
+  test:
+    needs: update
+    if: needs.update.outputs.changes_detected == 'true'
+    uses: ./.github/workflows/run-devenv-tests.yml
+    with:
+      nixpkgs-input: "github:cachix/devenv-nixpkgs/main"
+    secrets: inherit

@@ -1,0 +1,47 @@
+name: Create release PR
+
+on:
+  workflow_run:
+    workflows: ["Update and test"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: [self-hosted, Linux]
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Get nixpkgs revision
+        id: nixpkgs
+        run: |
+          SHORT=$(nix flake metadata --json | jq -r '.locks.nodes["nixpkgs-src"].locked.rev' | cut -c1-7)
+          echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure rolling branch exists
+        run: |
+          if ! git ls-remote --exit-code origin rolling; then
+            git push origin main:rolling
+          fi
+
+      - name: Create release PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: main
+          base: rolling
+          title: "Release nixpkgs ${{ steps.nixpkgs.outputs.short }}"
+          body: |
+            Promotes main to rolling with nixpkgs ${{ steps.nixpkgs.outputs.short }}.
+
+            ---
+            Auto-generated after successful test run.
