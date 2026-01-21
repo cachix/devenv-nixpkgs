@@ -106,7 +106,7 @@ class TestResultsUpdater:
                 stats['failed_jobs'] += 1
 
             # Platform-specific stats (only for test jobs)
-            if 'run-tests /' in name:
+            if 'test / ' in name:
                 # aarch64-linux
                 if 'linux' in name and 'ARM64' in name:
                     stats['aarch64_linux_total'] += 1
