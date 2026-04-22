@@ -31,13 +31,6 @@ in
 {
   # Patches from nixpkgs PRs or unreleased fixes
   upstream = [
-    # Bump prek to 0.3.9 so rolling includes repo/worktree-scoped
-    # core.hooksPath support before nixpkgs-unstable catches up.
-    (fetchpatch {
-      name = "prek-0.3.9.patch";
-      url = "https://github.com/NixOS/nixpkgs/commit/8568fa964f10d795abdce4cf96a501f43b0efad5.patch";
-      sha256 = "sha256-ALeLmuiPYeNmI6GNgaDSnAfu5Nd152rUnk9pPCUS1jY=";
-    })
   ]
   ++ lib.optionals isDarwin [
   ];
