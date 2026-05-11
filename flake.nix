@@ -50,11 +50,6 @@
         import patchedSrc {
           inherit system;
           overlays = import ./overlays;
-          config = {
-            allowUnfree = true;
-            allowUnsupportedSystem = true;
-            cudaSupport = true;
-          };
         };
     in
     {

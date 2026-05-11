@@ -35,17 +35,11 @@ let
         src = nixpkgs-src;
         patches = allPatches;
       };
-
-  defaultConfig = {
-    allowUnfree = true;
-    allowUnsupportedSystem = true;
-    cudaSupport = true;
-  };
 in
 import patchedSrc (
   args
   // {
+    inherit config;
     overlays = (import ./overlays) ++ overlays;
-    config = defaultConfig // config;
   }
 )
