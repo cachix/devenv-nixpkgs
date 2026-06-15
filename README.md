@@ -160,7 +160,13 @@ Trigger CI manually:
 
 ```bash
 gh workflow run "Update and test"
+
+# Force the tests to run even if nixpkgs is already up to date
+gh workflow run "Update and test" -f run_tests=on
 ```
+
+The `run_tests` input accepts `auto` (default: test only when nixpkgs changed),
+`on` (always test), or `off` (never test).
 
 ### Release Process
 
