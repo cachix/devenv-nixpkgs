@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       run_tests:
-        description: "Run tests: auto (only if nixpkgs updated), on (always), off (never)"
+        description: "When to run the test suite (auto = only when nixpkgs updated)"
         type: choice
         default: auto
         options:
           - auto
-          - "on"
-          - "off"
+          - always
+          - never
 
 permissions:
   contents: write
@@ -54,10 +54,10 @@ jobs:
   test:
     needs: update
     # auto (and scheduled runs): test only when the update changed flake.lock.
-    # on: always test. off: never test.
+    # always: always test. never: never test.
     if: >-
-      inputs.run_tests == 'on' ||
-      (inputs.run_tests != 'off' && needs.update.outputs.changes_detected == 'true')
+      inputs.run_tests == 'always' ||
+      (inputs.run_tests != 'never' && needs.update.outputs.changes_detected == 'true')
     uses: ./.github/workflows/run-devenv-tests.yml
     with:
       nixpkgs-input: "github:cachix/devenv-nixpkgs/main"
