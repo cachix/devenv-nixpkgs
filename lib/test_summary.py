@@ -75,8 +75,8 @@ class TestResultsUpdater:
                 f"Failed to get nixpkgs commit from {self.flake_lock_path}: {e}"
             )
 
-    def get_workflow_jobs(self, run_id: str) -> List[Dict]:
-        """Get jobs from a workflow run."""
+    def get_workflow_jobs(self, run_id: str) -> Tuple[Optional[str], List[Dict]]:
+        """Get the conclusion and jobs of a workflow run."""
         try:
             run = self.repo.get_workflow_run(int(run_id))
             jobs = []
@@ -86,7 +86,7 @@ class TestResultsUpdater:
                     'conclusion': job.conclusion,
                     'status': job.status
                 })
-            return jobs
+            return run.conclusion, jobs
         except Exception as e:
             raise TestResultsError(f"Failed to get jobs for run {run_id}: {e}")
 
@@ -173,12 +173,6 @@ class TestResultsUpdater:
 
         template_content = self.template_path.read_text()
 
-        # Determine overall status
-        if stats['failed_jobs'] == 0:
-            status = "✅ All tests passing"
-        else:
-            status = "❌ Some tests failing"
-
         # Calculate overall success rate
         if stats['total_jobs'] > 0:
             success_rate = (stats['successful_jobs'] * 100) // stats['total_jobs']
@@ -195,7 +189,6 @@ class TestResultsUpdater:
 
         # Replace template variables
         replacements = {
-            '{{STATUS}}': status,
             '{{NIXPKGS_COMMIT}}': nixpkgs_commit,
             '{{NIXPKGS_SHORT}}': nixpkgs_short,
             '{{RUN_URL}}': run_url,
@@ -264,8 +257,21 @@ class TestResultsUpdater:
                 console=self.console,
             ) as progress:
                 task = progress.add_task(f"Fetching jobs for run {run_id}...", total=None)
-                jobs = self.get_workflow_jobs(run_id)
+                conclusion, jobs = self.get_workflow_jobs(run_id)
                 progress.update(task, description=f"✅ Fetched {len(jobs)} jobs")
+
+            # Don't publish a summary for a run that didn't actually test
+            # anything. The test job is skipped when there were no nixpkgs
+            # changes to test, and a run cancelled mid-tests reports partial
+            # results.
+            if conclusion == 'cancelled':
+                raise TestResultsError(
+                    f"Run {run_id} was cancelled; refusing to update the summary"
+                )
+            if any(job['name'] == 'test' and job['conclusion'] == 'skipped' for job in jobs):
+                raise TestResultsError(
+                    f"Run {run_id}'s test job was skipped; refusing to update the summary"
+                )
 
             # Analyze results
             stats = self.analyze_jobs(jobs)

@@ -1,6 +1,4 @@
 <!-- TEST_RESULTS_START -->
-**Status**: {{STATUS}}
-
 **Nixpkgs revision**: [`{{NIXPKGS_SHORT}}`](https://github.com/NixOS/nixpkgs/commit/{{NIXPKGS_COMMIT}})
 
 **Test run**: [View detailed results]({{RUN_URL}})
