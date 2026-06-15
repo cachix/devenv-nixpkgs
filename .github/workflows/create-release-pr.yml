@@ -74,12 +74,33 @@ jobs:
       - name: Create or update release PR
         run: |
           TITLE="Release nixpkgs ${{ steps.nixpkgs.outputs.short }}"
+          # Hidden marker that identifies the per-run history comments we post.
+          HISTORY_MARKER="<!-- release-run-history -->"
           PR_URL=$(gh pr list --base rolling --head main --json url --jq '.[0].url')
-          if [ -n "$PR_URL" ]; then
-            gh pr edit "$PR_URL" --title "$TITLE" --body "$BODY"
-          else
+
+          if [ -z "$PR_URL" ]; then
+            # First run: open the PR with just the body.
             gh pr create --base rolling --head main --title "$TITLE" --body "$BODY"
+            exit 0
           fi
+
+          # Append a run summary as a history comment, tagged with the marker.
+          post_history_comment() {
+            printf '%s\n\n%s\n' "$HISTORY_MARKER" "$1" | gh pr comment "$PR_URL" --body-file -
+          }
+
+          # Subsequent runs: keep the body on the latest run and append one
+          # comment per run so the PR keeps a full history. The first run's
+          # summary only ever lived in the body, so the first time we add
+          # history we archive that body before overwriting it; after that every
+          # run already left its own comment.
+          PR_JSON=$(gh pr view "$PR_URL" --json body,comments)
+          if ! jq -r '.comments[].body' <<<"$PR_JSON" | grep -qF "$HISTORY_MARKER"; then
+            post_history_comment "$(jq -r '.body' <<<"$PR_JSON")"
+          fi
+
+          gh pr edit "$PR_URL" --title "$TITLE" --body "$BODY"
+          post_history_comment "$BODY"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BODY: ${{ steps.summary.outputs.body }}
