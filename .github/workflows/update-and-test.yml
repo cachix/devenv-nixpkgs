@@ -24,7 +24,7 @@ jobs:
       nixpkgs-rev: ${{ steps.nixpkgs.outputs.short }}
       changes_detected: ${{ steps.commit.outputs.changes_detected }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -46,7 +46,7 @@ jobs:
 
       - name: Commit and push
         id: commit
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update nixpkgs to ${{ steps.nixpkgs.outputs.short }}"
           file_pattern: flake.lock
