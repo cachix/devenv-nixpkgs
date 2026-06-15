@@ -116,7 +116,6 @@ Latest test results from devenv's comprehensive test suite:
 | aarch64-linux | 4/5 | 20.0% |
 | x86_64-linux | 2/5 | 60.0% |
 | aarch64-darwin | 2/5 | 60.0% |
-| x86_64-darwin | 71/72 | 1.3% |
 
 ### Summary
 

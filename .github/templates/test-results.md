@@ -14,7 +14,6 @@
 | aarch64-linux | {{AARCH64_LINUX_COUNT}} | {{AARCH64_LINUX_SUCCESS_RATE}}% |
 | x86_64-linux | {{X86_64_LINUX_COUNT}} | {{X86_64_LINUX_SUCCESS_RATE}}% |
 | aarch64-darwin | {{AARCH64_DARWIN_COUNT}} | {{AARCH64_DARWIN_SUCCESS_RATE}}% |
-| x86_64-darwin | {{X86_64_DARWIN_COUNT}} | {{X86_64_DARWIN_SUCCESS_RATE}}% |
 
 ### Summary
 
