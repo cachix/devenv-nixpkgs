@@ -4,6 +4,7 @@ Script to update README.md with test results from GitHub Actions workflow runs.
 Replaces the functionality of the bash script in .github/workflows/update-test-summary.yml
 """
 
+import json
 import os
 import re
 import sys
@@ -33,12 +34,14 @@ class TestResultsUpdater:
         repo_name: str,
         readme_path: Path = Path("README.md"),
         template_path: Path = Path(".github/templates/test-results.md"),
+        flake_lock_path: Path = Path("flake.lock"),
         console: Optional[Console] = None,
     ):
         self.github = Github(github_token)
         self.repo_name = repo_name
         self.readme_path = readme_path
         self.template_path = template_path
+        self.flake_lock_path = flake_lock_path
         self.console = console or Console()
 
         # Set up logging with rich
@@ -56,13 +59,21 @@ class TestResultsUpdater:
             raise TestResultsError(f"Failed to access repository {repo_name}: {e}")
 
     def get_nixpkgs_commit(self) -> Tuple[str, str]:
-        """Get nixpkgs commit hash from bump-rolling branch."""
+        """Get the upstream nixpkgs commit from flake.lock.
+
+        Reads the locked revision of the `nixpkgs-src` input, which is the
+        actual NixOS/nixpkgs commit this release is built against. This is the
+        same revision the workflow uses for the PR title, and it advances on
+        every `nix flake update`, so the summary stays in sync with the lock.
+        """
         try:
-            ref = self.repo.get_git_ref("heads/bump-rolling")
-            commit_sha = ref.object.sha
+            lock = json.loads(self.flake_lock_path.read_text())
+            commit_sha = lock["nodes"]["nixpkgs-src"]["locked"]["rev"]
             return commit_sha, commit_sha[:7]
         except Exception as e:
-            raise TestResultsError(f"Failed to get nixpkgs commit from bump-rolling: {e}")
+            raise TestResultsError(
+                f"Failed to get nixpkgs commit from {self.flake_lock_path}: {e}"
+            )
 
     def get_workflow_jobs(self, run_id: str) -> List[Dict]:
         """Get jobs from a workflow run."""
@@ -328,6 +339,13 @@ class TestResultsUpdater:
     show_default=True,
 )
 @click.option(
+    "--flake-lock-path",
+    default="flake.lock",
+    type=click.Path(path_type=Path),
+    help="Path to flake.lock (source of the nixpkgs revision)",
+    show_default=True,
+)
+@click.option(
     "--output-path",
     type=click.Path(path_type=Path),
     help="Write generated test results content to this file",
@@ -339,6 +357,7 @@ def main(
     repo: str,
     readme_path: Path,
     template_path: Path,
+    flake_lock_path: Path,
     output_path: Optional[Path],
     verbose: bool,
 ) -> None:
@@ -363,6 +382,7 @@ def main(
     config_text.append(f"  Run URL: {run_url or 'auto-generated'}\n")
     config_text.append(f"  README path: {readme_path}\n")
     config_text.append(f"  Template path: {template_path}\n")
+    config_text.append(f"  Flake lock path: {flake_lock_path}\n")
 
     console.print(Panel(config_text, title="Test Results Updater Configuration", style="cyan"))
 
@@ -371,6 +391,7 @@ def main(
         repo_name=repo,
         readme_path=readme_path,
         template_path=template_path,
+        flake_lock_path=flake_lock_path,
         console=console,
     )
 
