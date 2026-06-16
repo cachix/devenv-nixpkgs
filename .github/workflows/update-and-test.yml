@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: "0 9 * * 1"
   workflow_dispatch:
+    inputs:
+      run_tests:
+        description: "When to run the test suite (auto = only when nixpkgs updated)"
+        type: choice
+        default: auto
+        options:
+          - auto
+          - always
+          - never
 
 permissions:
   contents: write
@@ -15,7 +24,7 @@ jobs:
       nixpkgs-rev: ${{ steps.nixpkgs.outputs.short }}
       changes_detected: ${{ steps.commit.outputs.changes_detected }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -37,14 +46,18 @@ jobs:
 
       - name: Commit and push
         id: commit
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update nixpkgs to ${{ steps.nixpkgs.outputs.short }}"
           file_pattern: flake.lock
 
   test:
     needs: update
-    if: needs.update.outputs.changes_detected == 'true'
+    # auto (and scheduled runs): test only when the update changed flake.lock.
+    # always: always test. never: never test.
+    if: >-
+      inputs.run_tests == 'always' ||
+      (inputs.run_tests != 'never' && needs.update.outputs.changes_detected == 'true')
     uses: ./.github/workflows/run-devenv-tests.yml
     with:
       nixpkgs-input: "github:cachix/devenv-nixpkgs/main"

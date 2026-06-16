@@ -4,6 +4,7 @@ Script to update README.md with test results from GitHub Actions workflow runs.
 Replaces the functionality of the bash script in .github/workflows/update-test-summary.yml
 """
 
+import json
 import os
 import re
 import sys
@@ -33,12 +34,14 @@ class TestResultsUpdater:
         repo_name: str,
         readme_path: Path = Path("README.md"),
         template_path: Path = Path(".github/templates/test-results.md"),
+        flake_lock_path: Path = Path("flake.lock"),
         console: Optional[Console] = None,
     ):
         self.github = Github(github_token)
         self.repo_name = repo_name
         self.readme_path = readme_path
         self.template_path = template_path
+        self.flake_lock_path = flake_lock_path
         self.console = console or Console()
 
         # Set up logging with rich
@@ -56,16 +59,24 @@ class TestResultsUpdater:
             raise TestResultsError(f"Failed to access repository {repo_name}: {e}")
 
     def get_nixpkgs_commit(self) -> Tuple[str, str]:
-        """Get nixpkgs commit hash from bump-rolling branch."""
+        """Get the upstream nixpkgs commit from flake.lock.
+
+        Reads the locked revision of the `nixpkgs-src` input, which is the
+        actual NixOS/nixpkgs commit this release is built against. This is the
+        same revision the workflow uses for the PR title, and it advances on
+        every `nix flake update`, so the summary stays in sync with the lock.
+        """
         try:
-            ref = self.repo.get_git_ref("heads/bump-rolling")
-            commit_sha = ref.object.sha
+            lock = json.loads(self.flake_lock_path.read_text())
+            commit_sha = lock["nodes"]["nixpkgs-src"]["locked"]["rev"]
             return commit_sha, commit_sha[:7]
         except Exception as e:
-            raise TestResultsError(f"Failed to get nixpkgs commit from bump-rolling: {e}")
+            raise TestResultsError(
+                f"Failed to get nixpkgs commit from {self.flake_lock_path}: {e}"
+            )
 
-    def get_workflow_jobs(self, run_id: str) -> List[Dict]:
-        """Get jobs from a workflow run."""
+    def get_workflow_jobs(self, run_id: str) -> Tuple[Optional[str], List[Dict]]:
+        """Get the conclusion and jobs of a workflow run."""
         try:
             run = self.repo.get_workflow_run(int(run_id))
             jobs = []
@@ -75,7 +86,7 @@ class TestResultsUpdater:
                     'conclusion': job.conclusion,
                     'status': job.status
                 })
-            return jobs
+            return run.conclusion, jobs
         except Exception as e:
             raise TestResultsError(f"Failed to get jobs for run {run_id}: {e}")
 
@@ -91,8 +102,6 @@ class TestResultsUpdater:
             'x86_64_linux_failed': 0,
             'aarch64_darwin_total': 0,
             'aarch64_darwin_failed': 0,
-            'x86_64_darwin_total': 0,
-            'x86_64_darwin_failed': 0,
         }
 
         for job in jobs:
@@ -125,12 +134,6 @@ class TestResultsUpdater:
                     if conclusion == 'failure':
                         stats['aarch64_darwin_failed'] += 1
 
-                # x86_64-darwin (macos-15-intel)
-                elif 'macos-15-intel' in name:
-                    stats['x86_64_darwin_total'] += 1
-                    if conclusion == 'failure':
-                        stats['x86_64_darwin_failed'] += 1
-
         return stats
 
     def calculate_success_rates(self, stats: Dict[str, int]) -> Dict[str, str]:
@@ -141,7 +144,6 @@ class TestResultsUpdater:
             ('aarch64_linux', 'aarch64_linux_total', 'aarch64_linux_failed'),
             ('x86_64_linux', 'x86_64_linux_total', 'x86_64_linux_failed'),
             ('aarch64_darwin', 'aarch64_darwin_total', 'aarch64_darwin_failed'),
-            ('x86_64_darwin', 'x86_64_darwin_total', 'x86_64_darwin_failed'),
         ]
 
         for platform, total_key, failed_key in platforms:
@@ -171,12 +173,6 @@ class TestResultsUpdater:
 
         template_content = self.template_path.read_text()
 
-        # Determine overall status
-        if stats['failed_jobs'] == 0:
-            status = "✅ All tests passing"
-        else:
-            status = "❌ Some tests failing"
-
         # Calculate overall success rate
         if stats['total_jobs'] > 0:
             success_rate = (stats['successful_jobs'] * 100) // stats['total_jobs']
@@ -190,11 +186,9 @@ class TestResultsUpdater:
         aarch64_linux_count = f"{stats['aarch64_linux_failed']}/{stats['aarch64_linux_total']}"
         x86_64_linux_count = f"{stats['x86_64_linux_failed']}/{stats['x86_64_linux_total']}"
         aarch64_darwin_count = f"{stats['aarch64_darwin_failed']}/{stats['aarch64_darwin_total']}"
-        x86_64_darwin_count = f"{stats['x86_64_darwin_failed']}/{stats['x86_64_darwin_total']}"
 
         # Replace template variables
         replacements = {
-            '{{STATUS}}': status,
             '{{NIXPKGS_COMMIT}}': nixpkgs_commit,
             '{{NIXPKGS_SHORT}}': nixpkgs_short,
             '{{RUN_URL}}': run_url,
@@ -206,11 +200,9 @@ class TestResultsUpdater:
             '{{AARCH64_LINUX_COUNT}}': aarch64_linux_count,
             '{{X86_64_LINUX_COUNT}}': x86_64_linux_count,
             '{{AARCH64_DARWIN_COUNT}}': aarch64_darwin_count,
-            '{{X86_64_DARWIN_COUNT}}': x86_64_darwin_count,
             '{{AARCH64_LINUX_SUCCESS_RATE}}': rates['aarch64_linux_success_rate'],
             '{{X86_64_LINUX_SUCCESS_RATE}}': rates['x86_64_linux_success_rate'],
             '{{AARCH64_DARWIN_SUCCESS_RATE}}': rates['aarch64_darwin_success_rate'],
-            '{{X86_64_DARWIN_SUCCESS_RATE}}': rates['x86_64_darwin_success_rate'],
         }
 
         content = template_content
@@ -265,8 +257,21 @@ class TestResultsUpdater:
                 console=self.console,
             ) as progress:
                 task = progress.add_task(f"Fetching jobs for run {run_id}...", total=None)
-                jobs = self.get_workflow_jobs(run_id)
+                conclusion, jobs = self.get_workflow_jobs(run_id)
                 progress.update(task, description=f"✅ Fetched {len(jobs)} jobs")
+
+            # Don't publish a summary for a run that didn't actually test
+            # anything. The test job is skipped when there were no nixpkgs
+            # changes to test, and a run cancelled mid-tests reports partial
+            # results.
+            if conclusion == 'cancelled':
+                raise TestResultsError(
+                    f"Run {run_id} was cancelled; refusing to update the summary"
+                )
+            if any(job['name'] == 'test' and job['conclusion'] == 'skipped' for job in jobs):
+                raise TestResultsError(
+                    f"Run {run_id}'s test job was skipped; refusing to update the summary"
+                )
 
             # Analyze results
             stats = self.analyze_jobs(jobs)
@@ -340,6 +345,13 @@ class TestResultsUpdater:
     show_default=True,
 )
 @click.option(
+    "--flake-lock-path",
+    default="flake.lock",
+    type=click.Path(path_type=Path),
+    help="Path to flake.lock (source of the nixpkgs revision)",
+    show_default=True,
+)
+@click.option(
     "--output-path",
     type=click.Path(path_type=Path),
     help="Write generated test results content to this file",
@@ -351,6 +363,7 @@ def main(
     repo: str,
     readme_path: Path,
     template_path: Path,
+    flake_lock_path: Path,
     output_path: Optional[Path],
     verbose: bool,
 ) -> None:
@@ -375,6 +388,7 @@ def main(
     config_text.append(f"  Run URL: {run_url or 'auto-generated'}\n")
     config_text.append(f"  README path: {readme_path}\n")
     config_text.append(f"  Template path: {template_path}\n")
+    config_text.append(f"  Flake lock path: {flake_lock_path}\n")
 
     console.print(Panel(config_text, title="Test Results Updater Configuration", style="cyan"))
 
@@ -383,6 +397,7 @@ def main(
         repo_name=repo,
         readme_path=readme_path,
         template_path=template_path,
+        flake_lock_path=flake_lock_path,
         console=console,
     )
 
