@@ -101,25 +101,26 @@ Overlays are more resilient to upstream changes than source patches.
 Latest test results from devenv's comprehensive test suite:
 
 <!-- TEST_RESULTS_START -->
-**Nixpkgs revision**: [`9f11f82`](https://github.com/NixOS/nixpkgs/commit/9f11f828c213641c2369a9f1fa31fe31557e3156)
-**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/27547921463)
+**Nixpkgs revision**: [`9eac87a`](https://github.com/NixOS/nixpkgs/commit/9eac87a12312b8f60dd52e1c6e1a265f6fc7f5fc)
 
-**Last updated**: 2026-06-15 13:01:38 UTC
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/27568782743)
+
+**Last updated**: 2026-06-16 04:33:46 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| aarch64-linux | 0/0 | 0.0% |
-| x86_64-linux | 0/0 | 0.0% |
-| aarch64-darwin | 0/0 | 0.0% |
+| aarch64-linux | 4/71 | 94.3% |
+| x86_64-linux | 5/71 | 92.9% |
+| aarch64-darwin | 6/72 | 91.6% |
 
 ### Summary
 
-- **Total test jobs**: 2
-- **Successful**: 1 ✅
-- **Failed**: 0 ❌
-- **Success rate**: 50%
+- **Total test jobs**: 215
+- **Successful**: 197 ✅
+- **Failed**: 15 ❌
+- **Success rate**: 91%
 
 <!-- TEST_RESULTS_END -->
 
