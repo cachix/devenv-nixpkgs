@@ -33,7 +33,7 @@ jobs:
         uses: cachix/install-nix-action@v31
 
       - name: Install devenv
-        run: nix profile install github:cachix/devenv/latest
+        run: nix profile add github:cachix/devenv/latest --accept-flake-config
 
       - name: Get test results and update README
         shell: devenv shell bash -- -e {0}
