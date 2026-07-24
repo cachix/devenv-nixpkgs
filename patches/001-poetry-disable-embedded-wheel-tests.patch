@@ -1,0 +1,49 @@
+poetry: disable tests broken by virtualenv 21.6.1
+
+What it fixes:
+  poetry 2.4.1 fails its test suite, so the package does not build:
+
+    RuntimeError: embedded pip wheel not found
+      at .../poetry/utils/env/base_env.py:168 in get_embedded_wheel
+
+  virtualenv 21.6.1 changed get_embed_wheel(): previously any unrecognised
+  Python version fell back to the newest bundled wheel set
+
+    mapping = BUNDLE_SUPPORT.get(for_py_version, {}) or BUNDLE_SUPPORT[MAX]
+
+  whereas now the fallback only applies to None or versions newer than MAX,
+  and anything below MIN (now "3.9", since 21.6.1 also dropped "3.8")
+  returns None.
+
+  Poetry's MockEnv test double defaults to version_info = (3, 7, 0), so
+  get_embedded_wheel("pip") asks for "3.7", gets None back, and raises.
+  Three tests in tests/installation/test_executor.py fail as a result.
+
+  This is a test-only breakage. Real environments report their actual
+  Python version, which is bundled, so installed poetry is unaffected.
+
+Why it's needed for devenv:
+  The python-poetry and python-django examples both enable poetry, and
+  their shell derivations fail to realize while poetry is unbuildable.
+
+Upstream issue: https://github.com/NixOS/nixpkgs/issues/544083
+
+diff --git a/pkgs/by-name/po/poetry/unwrapped.nix b/pkgs/by-name/po/poetry/unwrapped.nix
+index c56b56b..4f43789 100644
+--- a/pkgs/by-name/po/poetry/unwrapped.nix
++++ b/pkgs/by-name/po/poetry/unwrapped.nix
+@@ -131,6 +131,14 @@ buildPythonPackage rec {
+     "test_threading_single_thread_safe"
+     "test_threading_property_caching"
+     "test_threading_atomic_cached_property_different_instances"
++    # virtualenv 21.6.1 dropped the fallback to the newest bundled wheel for
++    # Python versions below MIN (3.9). Poetry's MockEnv defaults to (3, 7, 0),
++    # so get_embed_wheel returns None and Poetry raises
++    # "RuntimeError: embedded pip wheel not found".
++    # Only affects the test double; real environments report a bundled version.
++    # https://github.com/NixOS/nixpkgs/issues/544083
++    "test_execute_executes_a_batch_of_operations"
++    "test_execute_prints_warning_for_yanked_package"
+   ]
+   ++ lib.optionals stdenv.hostPlatform.isDarwin [
+     # Sandbox violation:
