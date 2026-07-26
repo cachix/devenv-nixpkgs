@@ -27,6 +27,31 @@ class TestResultsError(Exception):
     pass
 
 
+PLATFORMS = ('aarch64-linux', 'x86_64-linux', 'aarch64-darwin')
+
+_TEST_JOB_RE = re.compile(
+    r'^(?:test / )?(?:tests|examples) '
+    r'\([^)]*\b(?P<system>' + '|'.join(map(re.escape, PLATFORMS)) + r')\)'
+)
+
+
+def test_job_platform(job_name: str) -> Optional[str]:
+    """Return the platform a test job ran on, or None for non-test jobs.
+
+    Platform test jobs belong to the `tests` or `examples` matrix groups of
+    run-devenv-tests.yml, nested under the `test` caller job when run via
+    "Update and test" and top-level when "Run devenv tests" is dispatched
+    standalone. The matrix group name embeds the system.
+    """
+    match = _TEST_JOB_RE.match(job_name)
+    return match.group('system') if match else None
+
+
+def platform_key(platform: str) -> str:
+    """Stats/template key prefix for a platform, e.g. 'aarch64_linux'."""
+    return platform.replace('-', '_')
+
+
 class TestResultsUpdater:
     def __init__(
         self,
@@ -96,13 +121,10 @@ class TestResultsUpdater:
             'total_jobs': len(jobs),
             'successful_jobs': 0,
             'failed_jobs': 0,
-            'aarch64_linux_total': 0,
-            'aarch64_linux_failed': 0,
-            'x86_64_linux_total': 0,
-            'x86_64_linux_failed': 0,
-            'aarch64_darwin_total': 0,
-            'aarch64_darwin_failed': 0,
         }
+        for platform in PLATFORMS:
+            stats[f'{platform_key(platform)}_total'] = 0
+            stats[f'{platform_key(platform)}_failed'] = 0
 
         for job in jobs:
             name = job['name']
@@ -115,24 +137,11 @@ class TestResultsUpdater:
                 stats['failed_jobs'] += 1
 
             # Platform-specific stats (only for test jobs)
-            if 'test / ' in name:
-                # aarch64-linux
-                if 'linux' in name and 'ARM64' in name:
-                    stats['aarch64_linux_total'] += 1
-                    if conclusion == 'failure':
-                        stats['aarch64_linux_failed'] += 1
-
-                # x86_64-linux
-                elif 'linux' in name and 'X64' in name:
-                    stats['x86_64_linux_total'] += 1
-                    if conclusion == 'failure':
-                        stats['x86_64_linux_failed'] += 1
-
-                # aarch64-darwin
-                elif 'macOS' in name and 'ARM64' in name:
-                    stats['aarch64_darwin_total'] += 1
-                    if conclusion == 'failure':
-                        stats['aarch64_darwin_failed'] += 1
+            platform = test_job_platform(name)
+            if platform:
+                stats[f'{platform_key(platform)}_total'] += 1
+                if conclusion == 'failure':
+                    stats[f'{platform_key(platform)}_failed'] += 1
 
         return stats
 
@@ -140,21 +149,16 @@ class TestResultsUpdater:
         """Calculate success rates for each platform."""
         rates = {}
 
-        platforms = [
-            ('aarch64_linux', 'aarch64_linux_total', 'aarch64_linux_failed'),
-            ('x86_64_linux', 'x86_64_linux_total', 'x86_64_linux_failed'),
-            ('aarch64_darwin', 'aarch64_darwin_total', 'aarch64_darwin_failed'),
-        ]
-
-        for platform, total_key, failed_key in platforms:
-            total = stats[total_key]
-            failed = stats[failed_key]
+        for platform in PLATFORMS:
+            key = platform_key(platform)
+            total = stats[f'{key}_total']
+            failed = stats[f'{key}_failed']
 
             if total > 0:
                 success_rate = ((total - failed) * 1000) // total
-                rates[f'{platform}_success_rate'] = f"{success_rate // 10}.{success_rate % 10}"
+                rates[f'{key}_success_rate'] = f"{success_rate // 10}.{success_rate % 10}"
             else:
-                rates[f'{platform}_success_rate'] = "0.0"
+                rates[f'{key}_success_rate'] = "0.0"
 
         return rates
 
@@ -276,6 +280,18 @@ class TestResultsUpdater:
             # Analyze results
             stats = self.analyze_jobs(jobs)
             rates = self.calculate_success_rates(stats)
+
+            # A run with no recognizable platform test jobs means the job
+            # naming no longer matches test_job_platform (or the wrong run
+            # was passed); fail loudly instead of publishing a 0/0 table.
+            if all(
+                stats[f'{platform_key(platform)}_total'] == 0
+                for platform in PLATFORMS
+            ):
+                raise TestResultsError(
+                    f"Run {run_id} has no recognizable platform test jobs; "
+                    "refusing to update the summary"
+                )
 
             # Generate run URL if not provided
             if not run_url:

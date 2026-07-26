@@ -31,8 +31,6 @@ in
 {
   # Patches from nixpkgs PRs or unreleased fixes
   upstream = [
-  ]
-  ++ lib.optionals isDarwin [
   ];
 
   # Local patches not yet submitted upstream
@@ -44,5 +42,9 @@ in
   # - Link to upstream issue (if any)
   local = [
     # Example: ./001-fix-something.patch
+    # poetry 2.4.1 test suite is broken by virtualenv 21.6.1 dropping the
+    # newest-bundle fallback for Python < 3.9, which poetry's MockEnv relies on.
+    # https://github.com/NixOS/nixpkgs/issues/544083
+    ./001-poetry-disable-embedded-wheel-tests.patch
   ];
 }
