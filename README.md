@@ -105,22 +105,22 @@ Latest test results from devenv's comprehensive test suite:
 
 **Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/30805163283)
 
-**Last updated**: 2026-08-03 12:12:45 UTC
+**Last updated**: 2026-08-04 14:22:08 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| aarch64-linux | 5/70 | 92.8% |
+| aarch64-linux | 2/70 | 97.1% |
 | x86_64-linux | 2/71 | 97.1% |
 | aarch64-darwin | 4/66 | 93.9% |
 
 ### Summary
 
 - **Total test jobs**: 208
-- **Successful**: 197 ✅
-- **Failed**: 11 ❌
-- **Success rate**: 94%
+- **Successful**: 200 ✅
+- **Failed**: 8 ❌
+- **Success rate**: 96%
 
 <!-- TEST_RESULTS_END -->
 
