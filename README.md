@@ -105,7 +105,7 @@ Latest test results from devenv's comprehensive test suite:
 
 **Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/32710845084)
 
-**Last updated**: 2026-08-26 13:29:13 UTC
+**Last updated**: 2026-08-26 14:06:31 UTC
 
 ### Platform Results
 
