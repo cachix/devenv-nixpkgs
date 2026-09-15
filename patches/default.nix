@@ -31,6 +31,12 @@ in
 {
   # Patches from nixpkgs PRs or unreleased fixes
   upstream = [
+    # Fix Lean's stage1 install prefix with CMake 4.4 (including lean4 modules).
+    # https://github.com/NixOS/nixpkgs/pull/563148
+    ./002-lean4-cmake-4.4-install-prefix.patch
+    # Disable LLVM 23's Darwin bundle-signing test, unsupported by sigtool.
+    # https://github.com/NixOS/nixpkgs/pull/552246
+    ./003-llvm-darwin-dsymutil-codesign.patch
   ];
 
   # Local patches not yet submitted upstream
