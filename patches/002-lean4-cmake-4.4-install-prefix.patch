@@ -1,0 +1,24 @@
+diff --git a/pkgs/by-name/le/lean4/package.nix b/pkgs/by-name/le/lean4/package.nix
+index 8d98ebd2c3565..17913e8b1181b 100644
+--- a/pkgs/by-name/le/lean4/package.nix
++++ b/pkgs/by-name/le/lean4/package.nix
+@@ -93,6 +93,7 @@ stdenv.mkDerivation (finalAttrs: {
+     "-DUSE_GITHASH=OFF"
+     "-DINSTALL_LICENSE=OFF"
+     "-DINSTALL_CADICAL=OFF"
++    "-DSTAGE1_CMAKE_INSTALL_PREFIX=${placeholder "out"}"
+     "-DUSE_MIMALLOC=${if enableMimalloc then "ON" else "OFF"}"
+   ];
+ 
+diff --git a/pkgs/development/lean-modules/lean4/default.nix b/pkgs/development/lean-modules/lean4/default.nix
+index 3f62f6151b8f5..d9ce64b4f5917 100644
+--- a/pkgs/development/lean-modules/lean4/default.nix
++++ b/pkgs/development/lean-modules/lean4/default.nix
+@@ -95,6 +95,7 @@ let
+       "-DINSTALL_LICENSE=OFF"
+       "-DINSTALL_CADICAL=OFF"
+       "-DINSTALL_LEANTAR=OFF"
++      "-DSTAGE1_CMAKE_INSTALL_PREFIX=${placeholder "out"}"
+       "-DUSE_MIMALLOC=ON"
+     ];
+ 
