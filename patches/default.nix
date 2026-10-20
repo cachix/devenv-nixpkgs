@@ -30,7 +30,11 @@ in
 
 {
   # Patches from nixpkgs PRs or unreleased fixes
-  upstream = [ ];
+  upstream = [
+    # https://github.com/NixOS/nixpkgs/pull/576347
+    # Package-only backport; this pin predates the NixOS blacklist cleanup.
+    ./cacert-3.131.1.patch
+  ];
 
   # Local patches not yet submitted upstream
   # These should eventually become upstream PRs
