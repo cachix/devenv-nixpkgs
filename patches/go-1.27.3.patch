@@ -1,0 +1,30 @@
+From e666c2b24f9fbf7274b4d5caadc1f54cfb0c3dbb Mon Sep 17 00:00:00 2001
+From: whispers <whispersofthedawn@duck.com>
+Date: Mon, 19 Oct 2026 22:19:43 -0400
+Subject: [PATCH] go_1_27: 1.27.2 -> 1.27.3
+
+announcement: https://groups.google.com/g/golang-announce/c/66pojueaQek
+changelog: https://go.dev/doc/devel/release#go1.27.minor
+diff: https://github.com/golang/go/compare/go1.27.2...go1.27.3
+---
+ pkgs/development/compilers/go/1.27.nix | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pkgs/development/compilers/go/1.27.nix b/pkgs/development/compilers/go/1.27.nix
+index ed2d68a3c6a94..0bdabbc7b0bbf 100644
+--- a/pkgs/development/compilers/go/1.27.nix
++++ b/pkgs/development/compilers/go/1.27.nix
+@@ -25,11 +25,11 @@ let
+ in
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "go";
+-  version = "1.27.2";
++  version = "1.27.3";
+ 
+   src = fetchurl {
+     url = "https://go.dev/dl/go${finalAttrs.version}.src.tar.gz";
+-    hash = "sha256-A0ldorpkiU1A9cSZLklFT6eLUGkGBP+Stq//UIG3bmI=";
++    hash = "sha256-bndJA1zzYPBrJXXRYup535/ajvZxiJ5cN1+OUHd/Jrs=";
+   };
+ 
+   strictDeps = true;

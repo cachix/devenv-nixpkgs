@@ -34,6 +34,12 @@ in
     # https://github.com/NixOS/nixpkgs/pull/576347
     # Package-only backport; this pin predates the NixOS blacklist cleanup.
     ./cacert-3.131.1.patch
+
+    # https://github.com/NixOS/nixpkgs/pull/576471
+    ./uv-0.13.4.patch
+
+    # https://github.com/NixOS/nixpkgs/pull/576202
+    ./go-1.27.3.patch
   ];
 
   # Local patches not yet submitted upstream

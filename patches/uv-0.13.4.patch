@@ -1,0 +1,34 @@
+From 7bfe60fe75d8c7171b95e6ec2d610d4778cc549b Mon Sep 17 00:00:00 2001
+From: Sizhe Zhao <prc.zhao@outlook.com>
+Date: Wed, 21 Oct 2026 00:36:20 +0800
+Subject: [PATCH] uv: 0.13.1 -> 0.13.4
+
+---
+ pkgs/by-name/uv/uv/package.nix | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pkgs/by-name/uv/uv/package.nix b/pkgs/by-name/uv/uv/package.nix
+index abc0dee1dd722..7042350285351 100644
+--- a/pkgs/by-name/uv/uv/package.nix
++++ b/pkgs/by-name/uv/uv/package.nix
+@@ -18,17 +18,17 @@
+ 
+ rustPlatform.buildRustPackage (finalAttrs: {
+   pname = "uv";
+-  version = "0.13.1";
++  version = "0.13.4";
+   __structuredAttrs = true;
+ 
+   src = fetchFromGitHub {
+     owner = "astral-sh";
+     repo = "uv";
+     tag = finalAttrs.version;
+-    hash = "sha256-+yl2XsAViHL1y91cI2z6VXbwf1Tt0uQ5sE3O2g2f1mw=";
++    hash = "sha256-US3SjwhWE3v4/i46YuBon2GA6PupC4Z0NRUqcV9CPLM=";
+   };
+ 
+-  cargoHash = "sha256-jbMVOFrG9HDtBXCAFYvI8zXujeM5Z6Cr1/qfKfrRyxU=";
++  cargoHash = "sha256-9L47CTlkOVYfGuzE4e7e2FYAI192pAsipzzScF7B1j4=";
+ 
+   buildInputs = [
+     rust-jemalloc-sys
