@@ -1,0 +1,63 @@
+From 23a59d049dd98b966f791d83e3b8fe1e0ac56352 Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Tue, 20 Oct 2026 21:30:13 +0000
+Subject: [PATCH] awscli2: make the vendored botocore prefer the system CA
+ bundle
+
+awscli2 uses its own copy of botocore (awscli/botocore), not
+python3Packages.botocore. It copies the cacert bundle into
+awscli/botocore/cacert.pem at build time. It ignores
+NIX_SSL_CERT_FILE, SSL_CERT_FILE and the system store at run time.
+
+Override where() in awscli/botocore/httpsession.py so that
+get_cert_path() returns NIX_SSL_CERT_FILE, SSL_CERT_FILE,
+/etc/ssl/certs/ca-certificates.crt or /etc/ssl/cert.pem when one
+exists. The previous behaviour stays as the fallback. AWS_CA_BUNDLE and
+the ca_bundle setting still take precedence.
+
+The S3 CRT transfer client still uses DEFAULT_CA_BUNDLE (the cacert
+copy), because awscrt cannot read the "TRUSTED CERTIFICATE" blocks in
+ca-bundle.crt.
+
+Part of #576541.
+
+Assisted-by: Claude Code (claude-opus-5)
+---
+ pkgs/by-name/aw/awscli2/package.nix         |  1 +
+ pkgs/by-name/aw/awscli2/system-ca-bundle.py | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+)
+ create mode 100644 pkgs/by-name/aw/awscli2/system-ca-bundle.py
+
+diff --git a/pkgs/by-name/aw/awscli2/package.nix b/pkgs/by-name/aw/awscli2/package.nix
+index c36b017d65e71..19818ff527ede 100644
+--- a/pkgs/by-name/aw/awscli2/package.nix
++++ b/pkgs/by-name/aw/awscli2/package.nix
+@@ -87,6 +87,7 @@ py.pkgs.buildPythonApplication rec {
+     sed -i '/pip>=/d' requirements/bootstrap.txt
+ 
+     ln -sf ${cacert}/etc/ssl/certs/ca-no-trust-rules-bundle.crt awscli/botocore/cacert.pem
++    cat ${./system-ca-bundle.py} >> awscli/botocore/httpsession.py
+   '';
+ 
+   nativeBuildInputs = [
+diff --git a/pkgs/by-name/aw/awscli2/system-ca-bundle.py b/pkgs/by-name/aw/awscli2/system-ca-bundle.py
+new file mode 100644
+index 0000000000000..12f52a7a1d6bd
+--- /dev/null
++++ b/pkgs/by-name/aw/awscli2/system-ca-bundle.py
+@@ -0,0 +1,15 @@
++
++# appended to awscli/botocore/httpsession.py by nixpkgs
++_nix_upstream_where = where
++
++
++def where():
++    for path in (
++        os.environ.get("NIX_SSL_CERT_FILE"),
++        os.environ.get("SSL_CERT_FILE"),
++        "/etc/ssl/certs/ca-certificates.crt",
++        "/etc/ssl/cert.pem",
++    ):
++        if path and os.path.isfile(path):
++            return path
++    return _nix_upstream_where()

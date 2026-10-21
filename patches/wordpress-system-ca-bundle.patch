@@ -1,0 +1,32 @@
+From d305233a9b6e1acc118fc94772db64a83e61cdac Mon Sep 17 00:00:00 2001
+From: Bart Oostveen <bart@bartoostveen.nl>
+Date: Wed, 21 Oct 2026 00:19:31 +0200
+Subject: [PATCH] wordpress_*: use cacert bundle instead of vendored bundle
+
+Related to: https://github.com/NixOS/nixpkgs/issues/576541
+---
+ pkgs/servers/web-apps/wordpress/generic.nix | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/pkgs/servers/web-apps/wordpress/generic.nix b/pkgs/servers/web-apps/wordpress/generic.nix
+index a3c16a3349ff5..3eaa048d1d271 100644
+--- a/pkgs/servers/web-apps/wordpress/generic.nix
++++ b/pkgs/servers/web-apps/wordpress/generic.nix
+@@ -6,6 +6,7 @@
+   fetchurl,
+   nixosTests,
+   writeScript,
++  cacert,
+ }:
+ 
+ stdenv.mkDerivation (finalAttrs: {
+@@ -35,6 +36,9 @@ stdenv.mkDerivation (finalAttrs: {
+     mkdir -p $out/share/wordpress
+     cp -r . $out/share/wordpress
+ 
++    rm $out/share/wordpress/wp-includes/certificates/ca-bundle.crt
++    ln -s ${cacert}/etc/ssl/certs/ca-no-trust-rules-bundle.crt $out/share/wordpress/wp-includes/certificates/ca-bundle.crt
++
+     runHook postInstall
+   '';
+ 

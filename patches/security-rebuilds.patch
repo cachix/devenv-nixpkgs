@@ -1,0 +1,173 @@
+From be147c05f4a91a83e254e9ce5d7f0421f99fca5c Mon Sep 17 00:00:00 2001
+From: whispers <whispersofthedawn@duck.com>
+Date: Mon, 19 Oct 2026 22:13:41 -0400
+Subject: [PATCH 1/5] go_1_26: 1.26.9 -> 1.26.10
+
+announcement: https://groups.google.com/g/golang-announce/c/66pojueaQek
+changelog: https://go.dev/doc/devel/release#go1.26.minor
+diff: https://github.com/golang/go/compare/go1.26.9...go1.26.10
+(cherry picked from commit 3b9cd97a664dd1cf4fcf3da80ad4382d27caa868)
+---
+ pkgs/development/compilers/go/1.26.nix | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pkgs/development/compilers/go/1.26.nix b/pkgs/development/compilers/go/1.26.nix
+index 46a433cbe5735..83f5010b9204c 100644
+--- a/pkgs/development/compilers/go/1.26.nix
++++ b/pkgs/development/compilers/go/1.26.nix
+@@ -25,11 +25,11 @@ let
+ in
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "go";
+-  version = "1.26.9";
++  version = "1.26.10";
+ 
+   src = fetchurl {
+     url = "https://go.dev/dl/go${finalAttrs.version}.src.tar.gz";
+-    hash = "sha256-lzXX3Ntls10/pXfwQGRzfAO4nPGitx5uaf4vPG+f1Mo=";
++    hash = "sha256-/WPog7ovK/ypPBZGsx6+9j4rHk0rMXyXidl2po2B828=";
+   };
+ 
+   strictDeps = true;
+
+From a1e16bb717bfdbaaf7262f33b44be9a3a165ef10 Mon Sep 17 00:00:00 2001
+From: whoomee <git@miglix.eu>
+Date: Fri, 16 Oct 2026 23:18:50 +0200
+Subject: [PATCH 2/5] libxrender: 0.9.12 -> 0.9.13
+
+(cherry picked from commit d6842b5b3e68eeb36ce187efd7074d4129b1716d)
+---
+ pkgs/by-name/li/libxrender/package.nix | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pkgs/by-name/li/libxrender/package.nix b/pkgs/by-name/li/libxrender/package.nix
+index c60e5ddc6e30e..a58bc442cf753 100644
+--- a/pkgs/by-name/li/libxrender/package.nix
++++ b/pkgs/by-name/li/libxrender/package.nix
+@@ -10,7 +10,7 @@
+ }:
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "libxrender";
+-  version = "0.9.12";
++  version = "0.9.13";
+ 
+   outputs = [
+     "out"
+@@ -20,7 +20,7 @@ stdenv.mkDerivation (finalAttrs: {
+ 
+   src = fetchurl {
+     url = "mirror://xorg/individual/lib/libXrender-${finalAttrs.version}.tar.xz";
+-    hash = "sha256-uDISjaSLOcjWCCJEgXQ0A60Wkb9OVU5L6cF03xcdG5c=";
++    hash = "sha256-P+iMYJ32eC4eevLk3jayVj1wzXD/fcsc2lYa1kkSu2Q=";
+   };
+ 
+   strictDeps = true;
+
+From f31e37a4a96ef9db1af57979ed279c9f1403d6cc Mon Sep 17 00:00:00 2001
+From: whoomee <git@miglix.eu>
+Date: Fri, 16 Oct 2026 23:18:02 +0200
+Subject: [PATCH 3/5] libxi: 1.8.3 -> 1.8.4
+
+(cherry picked from commit e5a6d98bf0d97b39bf6cbef466b2762f69c8ef36)
+---
+ pkgs/by-name/li/libxi/package.nix | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pkgs/by-name/li/libxi/package.nix b/pkgs/by-name/li/libxi/package.nix
+index 0475ba3951752..cbde12862a42d 100644
+--- a/pkgs/by-name/li/libxi/package.nix
++++ b/pkgs/by-name/li/libxi/package.nix
+@@ -12,7 +12,7 @@
+ }:
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "libxi";
+-  version = "1.8.3";
++  version = "1.8.4";
+ 
+   outputs = [
+     "out"
+@@ -23,7 +23,7 @@ stdenv.mkDerivation (finalAttrs: {
+ 
+   src = fetchurl {
+     url = "mirror://xorg/individual/lib/libXi-${finalAttrs.version}.tar.xz";
+-    hash = "sha256-etYAVvAa9PeGz+k7OncHRHcRYm/I2iY3vscakECbq+U=";
++    hash = "sha256-3dYFe4mpGQO8L4hNVchGdECQaUXkgsNlRyYN/yhmGvw=";
+   };
+ 
+   strictDeps = true;
+
+From 5f1fa410f05bc749e4eb18889275892acb447ed6 Mon Sep 17 00:00:00 2001
+From: whoomee <git@miglix.eu>
+Date: Fri, 16 Oct 2026 23:18:29 +0200
+Subject: [PATCH 4/5] libxpm: 3.5.19 -> 3.5.20
+
+(cherry picked from commit 5d2c65599e7dfce43ec7a5763bddc49d5a75d57a)
+---
+ pkgs/by-name/li/libxpm/package.nix | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pkgs/by-name/li/libxpm/package.nix b/pkgs/by-name/li/libxpm/package.nix
+index 09336f30f9300..53449eb7aeea2 100644
+--- a/pkgs/by-name/li/libxpm/package.nix
++++ b/pkgs/by-name/li/libxpm/package.nix
+@@ -15,7 +15,7 @@
+ }:
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "libxpm";
+-  version = "3.5.19";
++  version = "3.5.20";
+ 
+   outputs = [
+     "bin"
+@@ -25,7 +25,7 @@ stdenv.mkDerivation (finalAttrs: {
+ 
+   src = fetchurl {
+     url = "mirror://xorg/individual/lib/libXpm-${finalAttrs.version}.tar.xz";
+-    hash = "sha256-rTV21okiGjncco8ODcAsp7tqDXJMmnf9G/oemvg76QA=";
++    hash = "sha256-wGTq0D5N3niv3rEh/gtkTSXFUERM+QP73FN/Gnjz73Q=";
+   };
+ 
+   strictDeps = true;
+
+From 31b9129ece3bb07311d449e64e3d9280fd79e7fa Mon Sep 17 00:00:00 2001
+From: whoomee <git@miglix.eu>
+Date: Fri, 16 Oct 2026 23:17:25 +0200
+Subject: [PATCH 5/5] libx11: 1.8.13 -> 1.8.14
+
+(cherry picked from commit e7fb77e13dcfd9196c6bc944972e6ab1bda33339)
+---
+ pkgs/by-name/li/libx11/package.nix | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/pkgs/by-name/li/libx11/package.nix b/pkgs/by-name/li/libx11/package.nix
+index aaf77bf3a7012..08e2b297af61f 100644
+--- a/pkgs/by-name/li/libx11/package.nix
++++ b/pkgs/by-name/li/libx11/package.nix
+@@ -14,7 +14,7 @@
+ }:
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "libx11";
+-  version = "1.8.13";
++  version = "1.8.14";
+ 
+   outputs = [
+     "out"
+@@ -24,17 +24,9 @@ stdenv.mkDerivation (finalAttrs: {
+ 
+   src = fetchurl {
+     url = "mirror://xorg/individual/lib/libX11-${finalAttrs.version}.tar.xz";
+-    hash = "sha256-aWBvSFwsB8FO9k91t7sybUhYevM3ldmrPmB8C1+U8Rw=";
++    hash = "sha256-u8eMRiFxdGVcKzKxOK0RnzrBX1CAi00LOiZ3pLGvyVA=";
+   };
+ 
+-  patches = [
+-    # fixes CVE-2026-88806
+-    (fetchpatch {
+-      url = "https://gitlab.freedesktop.org/xorg/lib/libx11/-/commit/6d4432b13c0b3b6a644c13de9c793a14db48d545.patch";
+-      hash = "sha256-ahsf/DYeaOjkd9TcH9ZkfzB9qAaj4jRNi1AGyjoIycY=";
+-    })
+-  ];
+-
+   strictDeps = true;
+ 
+   depsBuildBuild = [ buildPackages.stdenv.cc ];

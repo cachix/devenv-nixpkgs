@@ -1,0 +1,110 @@
+From 1e2989ebd45ea0e5fc49c6884d59ae697f9fa46f Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Tue, 20 Oct 2026 21:13:08 +0000
+Subject: [PATCH] pnpm_12: bump webpki-root-certs to 1.0.10 and rustls-webpki
+ to 0.103.16
+
+eMudhra and Sectigo revoked eight eMudhra intermediates on 2026-10-18.
+pnpm 12 uses the system trust store first.
+It falls back to its compiled-in webpki-root-certs list when no system store loads.
+webpki-root-certs 1.0.10 removes emSign ECC Root CA - G3 from that list.
+rustls-webpki 0.103.16 rejects the eight revoked intermediates on both paths.
+webpki-roots (used through sqlx-core) also goes to 1.0.10.
+
+Category: compiled into a binary (#576544).
+
+Assisted-by: Claude Code (claude-opus-5)
+---
+ .../tools/pnpm/12-bump-webpki.patch           | 44 +++++++++++++++++++
+ pkgs/development/tools/pnpm/default.nix       |  5 ++-
+ pkgs/development/tools/pnpm/generic-rust.nix  |  3 +-
+ 3 files changed, 50 insertions(+), 2 deletions(-)
+ create mode 100644 pkgs/development/tools/pnpm/12-bump-webpki.patch
+
+diff --git a/pkgs/development/tools/pnpm/12-bump-webpki.patch b/pkgs/development/tools/pnpm/12-bump-webpki.patch
+new file mode 100644
+index 0000000000000..efaf382b5225e
+--- /dev/null
++++ b/pkgs/development/tools/pnpm/12-bump-webpki.patch
+@@ -0,0 +1,44 @@
++--- a/Cargo.lock
+++++ b/Cargo.lock
++@@ -7702,9 +7702,9 @@
++ 
++ [[package]]
++ name = "rustls-webpki"
++-version = "0.103.15"
+++version = "0.103.16"
++ source = "registry+https://github.com/rust-lang/crates.io-index"
++-checksum = "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2"
+++checksum = "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281"
++ dependencies = [
++  "aws-lc-rs",
++  "ring",
++@@ -9859,9 +9859,9 @@
++ 
++ [[package]]
++ name = "webpki-root-certs"
++-version = "1.0.9"
+++version = "1.0.10"
++ source = "registry+https://github.com/rust-lang/crates.io-index"
++-checksum = "b96554aa2acc8ccdb7e1c9a58a7a68dd5d13bccc69cd124cb09406db612a1c9b"
+++checksum = "58ec80e73fd8baf57bf0d9615554c75348bda990d6d5bbeab964dd068319fecb"
++ dependencies = [
++  "rustls-pki-types",
++ ]
++@@ -9872,14 +9872,14 @@
++ source = "registry+https://github.com/rust-lang/crates.io-index"
++ checksum = "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9"
++ dependencies = [
++- "webpki-roots 1.0.8",
+++ "webpki-roots 1.0.10",
++ ]
++ 
++ [[package]]
++ name = "webpki-roots"
++-version = "1.0.8"
+++version = "1.0.10"
++ source = "registry+https://github.com/rust-lang/crates.io-index"
++-checksum = "bf85cb06032201fa7c6f829d7db5a7e5aa45bcc0655327713065f6f0576731bf"
+++checksum = "1c1c8e20c8a38fc7d65abfe74eb7280e4aa667e8eec8bc84996d2874810748d9"
++ dependencies = [
++  "rustls-pki-types",
++ ]
+diff --git a/pkgs/development/tools/pnpm/default.nix b/pkgs/development/tools/pnpm/default.nix
+index 6789c094cf3c1..83de015e038ef 100644
+--- a/pkgs/development/tools/pnpm/default.nix
++++ b/pkgs/development/tools/pnpm/default.nix
+@@ -55,7 +55,10 @@ let
+     "12" = {
+       version = "12.9.0";
+       srcHash = "sha256-lcs9nh9GIKfy5QYabUCj/pIpePAjLeeKBlu4UKm8zgM=";
+-      cargoHash = "sha256-NGefDu4dGMC2RGrTPeYBuRrG+Gb8jnx9+SbyK8WPd9E=";
++      cargoHash = "sha256-Kyow1HuClzc8qBh1GUUaboOB28ut321hUNVSzctyKEE=";
++      # webpki-root-certs 1.0.10 removes emSign ECC Root CA - G3.
++      # rustls-webpki 0.103.16 blocks the revoked eMudhra intermediates.
++      cargoPatches = [ ./12-bump-webpki.patch ];
+     };
+   };
+ 
+diff --git a/pkgs/development/tools/pnpm/generic-rust.nix b/pkgs/development/tools/pnpm/generic-rust.nix
+index d7379ed8cf31b..e37120ade7afc 100644
+--- a/pkgs/development/tools/pnpm/generic-rust.nix
++++ b/pkgs/development/tools/pnpm/generic-rust.nix
+@@ -13,6 +13,7 @@
+   version,
+   srcHash,
+   cargoHash,
++  cargoPatches ? [ ],
+   knownVulnerabilities ? [ ],
+ }:
+ let
+@@ -20,7 +21,7 @@ let
+ in
+ rustPlatform.buildRustPackage (finalAttrs: {
+   pname = "pnpm";
+-  inherit version cargoHash;
++  inherit version cargoHash cargoPatches;
+ 
+   src = fetchFromGitHub {
+     owner = "pnpm";

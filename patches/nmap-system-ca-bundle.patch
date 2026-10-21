@@ -1,0 +1,35 @@
+From c94c4033dabde3e221a1e1cad47211d23f37e829 Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Tue, 20 Oct 2026 22:05:39 +0000
+Subject: [PATCH] nmap: remove vendored ncat CA bundle
+
+ncat loads the OpenSSL default verify paths and then also
+share/ncat/ca-bundle.crt (123 roots, stale, trusts AAA Certificate
+Services). The trust store is the union of both. Thus an update of
+cacert, or SSL_CERT_FILE / NIX_SSL_CERT_FILE, cannot remove a root.
+
+Remove the bundle. ncat ignores the load failure and uses only the
+system store. NSE does not verify certificates and does not use it.
+
+Part of #576541.
+
+Assisted-by: Claude Code (claude-opus-5)
+---
+ pkgs/by-name/nm/nmap/package.nix | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/pkgs/by-name/nm/nmap/package.nix b/pkgs/by-name/nm/nmap/package.nix
+index f953ae7ac4154..eb517d99d8187 100644
+--- a/pkgs/by-name/nm/nmap/package.nix
++++ b/pkgs/by-name/nm/nmap/package.nix
+@@ -54,6 +54,10 @@ stdenv.mkDerivation (finalAttrs: {
+ 
+   postInstall = ''
+     install -m 444 -D nselib/data/passwords.lst $out/share/wordlists/nmap.lst
++
++    # ncat trusts the union of the OpenSSL default store and this vendored bundle.
++    # Remove the bundle so that ncat uses only the system store.
++    rm -r $out/share/ncat
+   '';
+ 
+   postFixup = lib.optionalString stdenv.hostPlatform.isDarwin ''

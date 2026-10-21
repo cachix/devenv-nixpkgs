@@ -1,0 +1,43 @@
+From 68f44528a12e9abd46d9cd87d2e5dcc03bc5f0fb Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Tue, 20 Oct 2026 18:22:43 +0000
+Subject: [PATCH] osquery: use cacert for the default TLS server certs
+
+osquery shipped a vendored certs.pem bundle. It trusted AAA Certificate
+Services and emSign ECC Root CA - G3, so cacert updates did not apply.
+Replace it with a symlink to the cacert bundle. Point the default
+--tls_server_certs to that file instead of /opt/osquery.
+
+Assisted-by: Claude Code (claude-opus-5)
+---
+ pkgs/by-name/os/osquery/package.nix | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/pkgs/by-name/os/osquery/package.nix b/pkgs/by-name/os/osquery/package.nix
+index 2fbbcf44b8806..80164fc7210c9 100644
+--- a/pkgs/by-name/os/osquery/package.nix
++++ b/pkgs/by-name/os/osquery/package.nix
+@@ -1,5 +1,6 @@
+ {
+   lib,
++  cacert,
+   cmake,
+   fetchFromGitHub,
+   fetchzip,
+@@ -60,6 +61,8 @@ stdenvNoCC.mkDerivation rec {
+ 
+   postPatch = ''
+     substituteInPlace cmake/install_directives.cmake --replace "/control" "control"
++    substituteInPlace osquery/utils/config/default_paths.h \
++      --replace-fail '"/opt/osquery/share/osquery/certs/"' "\"$out/share/osquery/certs/\""
+   '';
+ 
+   configurePhase = ''
+@@ -79,6 +82,7 @@ stdenvNoCC.mkDerivation rec {
+ 
+   postInstall = ''
+     rm -rf $out/control
++    ln -sf ${cacert}/etc/ssl/certs/ca-bundle.crt $out/share/osquery/certs/certs.pem
+     remove-references-to -t ${toolchain} $out/bin/osqueryd
+   '';
+ 

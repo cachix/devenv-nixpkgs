@@ -1,0 +1,39 @@
+From cba8aa501cdf83a2efb7b0bcd98db1827be4e1c3 Mon Sep 17 00:00:00 2001
+From: Daniel McCarney <daniel@binaryparadox.net>
+Date: Tue, 20 Oct 2026 10:44:53 -0400
+Subject: [PATCH] rustls-ffi: 0.15.5 -> 0.15.6
+
+This addresses CVE-2026-111943 by updating rustls-ffi from 0.15.5 to
+0.15.6. See the upstream release notes for more information:
+
+  https://github.com/rustls/rustls-ffi/releases/tag/v0.15.6
+---
+ pkgs/by-name/ru/rustls-ffi/package.nix | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pkgs/by-name/ru/rustls-ffi/package.nix b/pkgs/by-name/ru/rustls-ffi/package.nix
+index 32e53885e41c5..6867269bcc536 100644
+--- a/pkgs/by-name/ru/rustls-ffi/package.nix
++++ b/pkgs/by-name/ru/rustls-ffi/package.nix
+@@ -15,18 +15,18 @@
+ 
+ stdenv.mkDerivation (finalAttrs: {
+   pname = "rustls-ffi";
+-  version = "0.15.5";
++  version = "0.15.6";
+ 
+   src = fetchFromGitHub {
+     owner = "rustls";
+     repo = "rustls-ffi";
+     tag = "v${finalAttrs.version}";
+-    hash = "sha256-SJhm/krDU7dMH99ULJ0EOMCxP69/ueQKCWrt00G3m8g=";
++    hash = "sha256-qVsadtAxS+yTt9FZMszwxql0CBTuz9ofpTto1hw9Kzg=";
+   };
+ 
+   cargoDeps = rustPlatform.fetchCargoVendor {
+     inherit (finalAttrs) pname version src;
+-    hash = "sha256-hiBMosPc77z0Z6xeP9wnh0B9mFDTXQ7nZ3OExO4leTs=";
++    hash = "sha256-rALR92Ia+I2axVTMVjI9UyNiiS4e6QuN5QU9JfM0UY8=";
+   };
+ 
+   propagatedBuildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
