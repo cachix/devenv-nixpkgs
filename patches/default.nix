@@ -25,7 +25,7 @@
 }:
 
 let
-  inherit (stdenv) isDarwin;
+  inherit (stdenv.hostPlatform) isDarwin;
 in
 
 {
@@ -39,7 +39,8 @@ in
   # - What it fixes
   # - Why it's needed for devenv
   # - Link to upstream issue (if any)
-  local = [
-    # Example: ./001-fix-something.patch
+  local = lib.optionals isDarwin [
+    # Avoid port 8000 collisions in CherryPy logging tests on macOS builders.
+    ./cherrypy-test-port.patch
   ];
 }

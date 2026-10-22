@@ -1,0 +1,44 @@
+CherryPy: avoid the host's port 8000 in logging tests
+
+On Darwin, build sandboxes share the host network. If port 8000 is occupied,
+all seven logging tests that start a server terminate with status 70.
+Select an available local port for each test instead of disabling the tests.
+This also fixes builds of Poetry used by the devenv Python examples.
+
+Local fix; no upstream issue filed.
+
+--- a/pkgs/development/python-modules/cherrypy/default.nix
++++ b/pkgs/development/python-modules/cherrypy/default.nix
+@@ -32,6 +32,8 @@
+     inherit pname version;
+     hash = "sha256-bHDnjuETAOiyHAdnxUKuaxAqScrFz9Tj4xPXu5B8WJE=";
+   };
++
++  patches = [ ./dynamic-test-port.patch ];
+ 
+   postPatch = ''
+     # Disable doctest plugin because times out
+diff --git a/pkgs/development/python-modules/cherrypy/dynamic-test-port.patch b/pkgs/development/python-modules/cherrypy/dynamic-test-port.patch
+new file mode 100644
+--- /dev/null
++++ b/pkgs/development/python-modules/cherrypy/dynamic-test-port.patch
+@@ -0,0 +1,19 @@
++--- a/cherrypy/test/test_logging.py
+++++ b/cherrypy/test/test_logging.py
++@@ -5,6 +5,7 @@
++ 
++ from cheroot.test import webtest
++ import pytest
+++import portend
++ import requests  # FIXME: Temporary using it directly, better switch
++ 
++ import cherrypy
++@@ -86,6 +87,8 @@
++ 
++     root = Root()
++ 
+++    # macOS build sandboxes share the host network; port 8000 may be occupied.
+++    webtest.WebCase.PORT = portend.find_available_local_port()
++     cherrypy.config.reset()
++     cherrypy.config.update({
++         'server.socket_host': webtest.WebCase.HOST,
