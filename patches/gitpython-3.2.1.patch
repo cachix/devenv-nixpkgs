@@ -1,0 +1,26 @@
+GitPython: update to 3.2.1 for CVE-2026-114145
+
+https://github.com/NixOS/nixpkgs/issues/577303
+https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-83vg-56qc-22m7
+Reject unsafe submodule paths before cloning, preventing writes into .git/hooks.
+Keep the existing Python interpreter and build dependencies for devenv.
+
+--- a/pkgs/development/python-modules/gitpython/default.nix
++++ b/pkgs/development/python-modules/gitpython/default.nix
+@@ -9,14 +9,14 @@
+ 
+ buildPythonPackage (finalAttrs: {
+   pname = "gitpython";
+-  version = "3.1.62";
++  version = "3.2.1";
+   pyproject = true;
+ 
+   src = fetchFromGitHub {
+     owner = "gitpython-developers";
+     repo = "GitPython";
+     tag = finalAttrs.version;
+-    hash = "sha256-g7qZSFFWAa7iJSn+HAxCTfNZfrYZsZRJGUIZGYQjoUI=";
++    hash = "sha256-LqHpvJLe5LqPca6FIH3NoOXVdV7LPojixg4sLPgLC8Q=";
+   };
+ 
+   postPatch = ''

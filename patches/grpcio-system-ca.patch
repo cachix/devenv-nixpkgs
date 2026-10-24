@@ -1,0 +1,54 @@
+From 57a4f0f3cab7cab751a2523210bdc58872e5022d Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Tue, 20 Oct 2026 18:32:07 +0000
+Subject: [PATCH] python3Packages.grpcio: link vendored roots.pem to cacert
+
+grpcio sets a roots override callback. The callback returns the
+vendored grpc/_cython/_credentials/roots.pem. gRPC core calls it before
+it tries the system trust store, so grpcio always uses the vendored
+copy. That copy does not get cacert updates. It still contains
+emSign ECC Root CA - G3, for example.
+
+Replace the vendored file with a link to the cacert bundle, so that
+a cacert update also updates the grpcio trust store.
+GRPC_DEFAULT_SSL_ROOTS_FILE_PATH still overrides it.
+
+Assisted-by: Claude Code (claude-opus-5)
+Backport snapshot of https://github.com/NixOS/nixpkgs/pull/576514.
+Use the patched CA bundle in devenv environments without changing runtimes.
+
+---
+ pkgs/development/python-modules/grpcio/default.nix | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/pkgs/development/python-modules/grpcio/default.nix b/pkgs/development/python-modules/grpcio/default.nix
+index 6e85ffd1f59f3..19902fc2e4f8c 100644
+--- a/pkgs/development/python-modules/grpcio/default.nix
++++ b/pkgs/development/python-modules/grpcio/default.nix
+@@ -2,12 +2,14 @@
+   lib,
+   stdenv,
+   buildPythonPackage,
++  cacert,
+   c-ares,
+   cython,
+   fetchPypi,
+   openssl,
+   pkg-config,
+   protobuf,
++  python,
+   typing-extensions,
+   setuptools,
+   zlib,
+@@ -76,6 +78,11 @@ buildPythonPackage rec {
+ 
+   enableParallelBuilding = true;
+ 
++  postInstall = ''
++    ln -sf ${cacert}/etc/ssl/certs/ca-bundle.crt \
++      $out/${python.sitePackages}/grpc/_cython/_credentials/roots.pem
++  '';
++
+   pythonImportsCheck = [ "grpc" ];
+ 
+   meta = {

@@ -1,0 +1,74 @@
+From 64b87096c948e9680bb1a75c3fbd651345245716 Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Tue, 20 Oct 2026 22:07:25 +0000
+Subject: [PATCH] gradle: use cacert for the google-api-client trust store
+
+Gradle uses google-api-client 1.34.0 for gcs:// repositories and the
+GCS build cache. GcsClient calls GoogleNetHttpTransport.newTrustedTransport().
+That method trusts only google.p12 from the jar (password notasecret).
+It does not use the JDK cacerts. The bundled list is from 2022 and does
+not get cacert updates, for example the eMudhra and Sectigo revocations.
+
+Replace google.p12 with a PKCS12 store made from cacert. Remove
+google.jks, because no code reads it. The rewritten jar is reproducible.
+
+See #576542.
+
+Assisted-by: Claude Code (claude-opus-5)
+Backport snapshot of https://github.com/NixOS/nixpkgs/pull/576575.
+Use the patched CA bundle in devenv environments without changing runtimes.
+
+---
+ .../tools/build-managers/gradle/default.nix   | 25 +++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/pkgs/development/tools/build-managers/gradle/default.nix b/pkgs/development/tools/build-managers/gradle/default.nix
+index f49d1a30afde4..b80f5f3271335 100644
+--- a/pkgs/development/tools/build-managers/gradle/default.nix
++++ b/pkgs/development/tools/build-managers/gradle/default.nix
+@@ -152,6 +152,9 @@ let
+       writeText,
+       autoPatchelfHook,
+       buildPackages,
++      cacert,
++      jre-generate-cacerts,
++      zip,
+ 
+       # The JDK/JRE used for running Gradle.
+       java ? defaultJava,
+@@ -177,6 +180,7 @@ let
+       nativeBuildInputs = [
+         makeWrapper
+         unzip
++        zip
+       ]
+       ++ lib.optionals stdenv.hostPlatform.isLinux [
+         autoPatchelfHook
+@@ -210,6 +214,27 @@ let
+           cp -av lib/ $gradleLibexec
+           [ -f $gradleLibexec/lib/gradle-launcher-*.jar ] || { echo "No Gradle launcher jar found!" >&2 && exit 1; }
+ 
++          # google-api-client (GCS repositories and build cache) trusts only its bundled google.p12.
++          # Replace it with a store made from cacert. Nothing reads google.jks.
++          for jar in $gradleLibexec/lib/plugins/google-api-client-*.jar; do
++            unzip -l "$jar" com/google/api/client/googleapis/google.p12 >/dev/null
++            work="$(mktemp -d)"
++            pushd "$work"
++            export JAVA_TOOL_OPTIONS="-Dkeystore.pkcs12.certProtectionAlgorithm=NONE -Dkeystore.pkcs12.macAlgorithm=NONE"
++            ${jre-generate-cacerts} ${buildPackages.jdk}/bin/keytool ${cacert}/etc/ssl/certs/ca-bundle.crt
++            mkdir -p com/google/api/client/googleapis
++            ${buildPackages.jdk}/bin/keytool -importkeystore -noprompt \
++              -srckeystore cacerts -srcstorepass changeit \
++              -destkeystore com/google/api/client/googleapis/google.p12 \
++              -deststoretype PKCS12 -deststorepass notasecret
++            unset JAVA_TOOL_OPTIONS
++            touch -d @315619200 com/google/api/client/googleapis/google.p12
++            zip -q -d "$jar" com/google/api/client/googleapis/google.jks
++            zip -q -X "$jar" com/google/api/client/googleapis/google.p12
++            popd
++            rm -r "$work"
++          done
++
+           # Set up toolchain paths in the gradle.properties.
+           echo ${lib.escapeShellArg toolchainPaths} > $gradleLibexec/gradle.properties
+ 

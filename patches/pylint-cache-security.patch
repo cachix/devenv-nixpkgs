@@ -1,0 +1,33 @@
+Pylint: backport the JSON cache fix for CVE-2026-114608
+
+https://github.com/NixOS/nixpkgs/issues/577795
+https://github.com/pylint-dev/pylint/security/advisories/GHSA-22qq-2fwx-7p67
+Keep the existing source snapshot's Astroid compatibility and backport only
+upstream's security fix. Changing the displayed version alone is insufficient.
+Only Pylint and its dependents rebuild; Python and Astroid stay cached.
+
+--- a/pkgs/development/python-modules/pylint/default.nix
++++ b/pkgs/development/python-modules/pylint/default.nix
+@@ -5,6 +5,7 @@
+   buildPythonPackage,
+   dill,
+   fetchFromGitHub,
++  fetchurl,
+   gitpython,
+   isort,
+   mccabe,
+@@ -33,6 +34,14 @@
+     rev = "5f7e4013c004324f11eac6f310d932f505272e28";
+     hash = "sha256-fdOA/ofrEMfzlbVbN6f5LE9nGC7QlggBU/SKW70iaC8=";
+   };
++
++  # CVE-2026-114608: never deserialize untrusted cache files with pickle.
++  patches = [
++    (fetchurl {
++      url = "https://github.com/pylint-dev/pylint/commit/5b241f66318220e9ba7b21ca631fbfe8e77682ca.patch";
++      hash = "sha256-+YTp8fFs44MwMr4Z/9QeURZ91zSfpGxXBvmAKEh3whc=";
++    })
++  ];
+ 
+   build-system = [ setuptools ];
+ 
