@@ -1,0 +1,31 @@
+pytest-services: isolate test locks on Darwin builders
+
+Darwin build sandboxes share /tmp. The default memory_root_dir fixture
+uses /tmp/service-locks, whose port and display files can belong to another
+Nix build user. This fails pytest-services and its CherryPy/Poetry dependents.
+
+Override the fixture only in the package's own tests, using pytest's private
+temporary directory. Keep the port and display allocation tests enabled.
+Applied only on Darwin; Linux derivations retain their cached store paths.
+
+Local fix; no upstream issue filed.
+
+--- a/pkgs/development/python-modules/pytest-services/default.nix
++++ b/pkgs/development/python-modules/pytest-services/default.nix
+@@ -52,6 +52,16 @@
+ 
+   pythonImportsCheck = [ "pytest_services" ];
+ 
++  preCheck = ''
++    # Darwin sandboxes share /tmp with other Nix build users.
++    cat >> tests/conftest.py <<'PY'
++
++    @pytest.fixture(scope="session")
++    def memory_root_dir(tmp_path_factory):
++        return str(tmp_path_factory.mktemp("pytest-services"))
++    PY
++  '';
++
+   disabledTests = [
+     # Tests require binaries and additional parts
+     "test_memcached"

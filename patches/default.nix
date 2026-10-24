@@ -25,12 +25,24 @@
 }:
 
 let
-  inherit (stdenv) isDarwin;
+  inherit (stdenv.hostPlatform) isDarwin;
 in
 
 {
   # Patches from nixpkgs PRs or unreleased fixes
-  upstream = [ ];
+  upstream = [
+    # https://github.com/NixOS/nixpkgs/pull/577354 (snapshot; not yet merged)
+    ./bun-1.4.4.patch
+    # Targeted CA-store fixes; keep the interpreter/compiler package paths.
+    # https://github.com/NixOS/nixpkgs/pull/576514
+    ./grpcio-system-ca.patch
+    # https://github.com/NixOS/nixpkgs/pull/577080
+    ./httplib2-system-ca.patch
+    # https://github.com/NixOS/nixpkgs/pull/576575
+    ./gradle-system-ca.patch
+    # https://github.com/NixOS/nixpkgs/pull/577131
+    ./ruby-gems-system-ca.patch
+  ];
 
   # Local patches not yet submitted upstream
   # These should eventually become upstream PRs
@@ -40,6 +52,19 @@ in
   # - Why it's needed for devenv
   # - Link to upstream issue (if any)
   local = [
-    # Example: ./001-fix-something.patch
+    # PHP's follow-up mitigation, without rebuilding interpreters/extensions.
+    ./php-session-upload-progress.patch
+    # Wrap the cached Deno runtime instead of rebuilding Rust/V8.
+    ./deno-system-ca.patch
+    # https://github.com/NixOS/nixpkgs/issues/577303
+    ./gitpython-3.2.1.patch
+    # https://github.com/NixOS/nixpkgs/issues/577795
+    ./pylint-cache-security.patch
+  ]
+  ++ lib.optionals isDarwin [
+    # Avoid port 8000 collisions in CherryPy logging tests on macOS builders.
+    ./cherrypy-test-port.patch
+    # macOS builders share /tmp; another build user may own service-locks.
+    ./pytest-services-test-locks.patch
   ];
 }

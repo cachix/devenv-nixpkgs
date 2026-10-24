@@ -4,8 +4,9 @@ Battle-tested [nixpkgs](https://github.com/NixOS/nixpkgs) using [devenv](https:/
 
 Currently, the only supported release is [rolling](https://github.com/cachix/devenv-nixpkgs/tree/rolling).
 
-Rolling is based on [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
+Main tracks [nixpkgs master](https://github.com/NixOS/nixpkgs/tree/master)
 plus any patches that improve the integrations and services offered by [devenv](https://github.com/cachix/devenv).
+Rolling contains snapshots promoted from main.
 
 ## Usage
 
@@ -101,26 +102,26 @@ Overlays are more resilient to upstream changes than source patches.
 Latest test results from devenv's comprehensive test suite:
 
 <!-- TEST_RESULTS_START -->
-**Nixpkgs revision**: [`8edc0c7`](https://github.com/NixOS/nixpkgs/commit/8edc0c72e3a38faf5434e40d1f19431125fe4b30)
+**Nixpkgs revision**: [`5adc508`](https://github.com/NixOS/nixpkgs/commit/5adc50831c259f87faeb09ddf930d43597197473)
 
-**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/38237847059)
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/39596033052)
 
-**Last updated**: 2026-10-12 12:07:13 UTC
+**Last updated**: 2026-10-21 18:03:39 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| aarch64-linux | 1/71 | 98.5% |
-| x86_64-linux | 1/72 | 98.6% |
-| aarch64-darwin | 1/67 | 98.5% |
+| aarch64-linux | 0/70 | 100.0% |
+| x86_64-linux | 2/71 | 97.1% |
+| aarch64-darwin | 2/66 | 96.9% |
 
 ### Summary
 
-- **Total test jobs**: 211
-- **Successful**: 208 ✅
-- **Failed**: 3 ❌
-- **Success rate**: 98%
+- **Total test jobs**: 208
+- **Successful**: 202 ✅
+- **Failed**: 4 ❌
+- **Success rate**: 97%
 
 <!-- TEST_RESULTS_END -->
 
@@ -128,7 +129,7 @@ Latest test results from devenv's comprehensive test suite:
 
 ### How It Works
 
-1. `flake.nix` imports nixpkgs-unstable and applies patches at evaluation time
+1. `flake.nix` imports nixpkgs master and applies patches at evaluation time
 2. `flake.lock` pins the exact nixpkgs revision
 3. CI runs weekly to update, test, and create release PRs
 
@@ -141,7 +142,7 @@ Latest test results from devenv's comprehensive test suite:
 
 Every Monday at 9:00 UTC (or manually triggered):
 
-1. **Update**: `nix flake update` pulls latest nixpkgs-unstable
+1. **Update**: `nix flake update` pulls latest nixpkgs master
 2. **Validate**: Build a test package to verify patches apply
 3. **Push**: Commit updated `flake.lock` to `main`
 4. **Test**: Run devenv test suite across all platforms

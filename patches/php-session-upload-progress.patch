@@ -1,0 +1,24 @@
+PHP: disable session upload progress in generated configurations
+
+https://www.php.net/archive/2026.php#2026-10-23-1
+
+Mitigate CVE-2026-115560, the session serializer follow-up to
+CVE-2026-109619, as recommended by PHP on 2026-10-23. Apply this before
+request parsing through the generated php.ini, including buildEnv and
+withExtensions used by devenv. Explicit extraConfig can override it.
+
+Only configuration and wrappers change: the patched PHP interpreters and
+extensions retain their upstream store paths. Raw unwrapped PHP and
+applications replacing PHP_INI_SCAN_DIR need their own mitigation.
+Remove this default when upstream releases the remaining source fix.
+
+--- a/pkgs/development/interpreters/php/generic.nix
++++ b/pkgs/development/interpreters/php/generic.nix
+@@ -142,6 +142,7 @@
+             extNames = map getExtName enabledExtensions;
+             extraInit = writeText "php-extra-init-${version}.ini" ''
+               ${lib.concatStringsSep "\n" (lib.textClosureList extensionTexts extNames)}
++              session.upload_progress.enabled=0
+               ${extraConfig}
+             '';
+ 
