@@ -4,7 +4,7 @@ Battle-tested [nixpkgs](https://github.com/NixOS/nixpkgs) using [devenv](https:/
 
 Currently, the only supported release is [rolling](https://github.com/cachix/devenv-nixpkgs/tree/rolling).
 
-Main tracks [nixpkgs master](https://github.com/NixOS/nixpkgs/tree/master)
+Main tracks [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
 plus any patches that improve the integrations and services offered by [devenv](https://github.com/cachix/devenv).
 Rolling contains snapshots promoted from main.
 
@@ -129,7 +129,7 @@ Latest test results from devenv's comprehensive test suite:
 
 ### How It Works
 
-1. `flake.nix` imports nixpkgs master and applies patches at evaluation time
+1. `flake.nix` imports nixpkgs-unstable and applies patches at evaluation time
 2. `flake.lock` pins the exact nixpkgs revision
 3. CI runs weekly to update, test, and create release PRs
 
@@ -142,7 +142,7 @@ Latest test results from devenv's comprehensive test suite:
 
 Every Monday at 9:00 UTC (or manually triggered):
 
-1. **Update**: `nix flake update` pulls latest nixpkgs master
+1. **Update**: `nix flake update` pulls latest nixpkgs-unstable
 2. **Validate**: Build a test package to verify patches apply
 3. **Push**: Commit updated `flake.lock` to `main`
 4. **Test**: Run devenv test suite across all platforms

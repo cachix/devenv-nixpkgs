@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs-src = {
-      url = "github:NixOS/nixpkgs/master";
+      url = "github:NixOS/nixpkgs/nixpkgs-unstable";
       flake = false;
     };
   };
