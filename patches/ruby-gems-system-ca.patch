@@ -1,0 +1,89 @@
+From 455bac55433a26749575d130eb567efd97f09589 Mon Sep 17 00:00:00 2001
+From: Rafael Irgolic <hello@irgolic.com>
+Date: Wed, 21 Oct 2026 18:47:17 +0000
+Subject: [PATCH] rubyPackages.{algoliasearch,excon,httpclient,nap}: use cacert
+ bundle instead of vendored CA files
+
+Assisted-by: Claude Code (Claude Fable 5.1)
+Assisted-by: Claude Code (Claude Opus 5.5)
+Backport snapshot of https://github.com/NixOS/nixpkgs/pull/577131.
+Use the patched CA bundle in devenv environments without changing runtimes.
+
+---
+ .../ruby-modules/gem-config/default.nix       | 35 +++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/pkgs/development/ruby-modules/gem-config/default.nix b/pkgs/development/ruby-modules/gem-config/default.nix
+index 2851836b3ebda..c629a75856313 100644
+--- a/pkgs/development/ruby-modules/gem-config/default.nix
++++ b/pkgs/development/ruby-modules/gem-config/default.nix
+@@ -59,6 +59,7 @@
+   pcre2,
+   gecode_3,
+   curl,
++  cacert,
+   libsodium,
+   snappy,
+   libossp_uuid,
+@@ -143,6 +144,14 @@ in
+     meta.mainProgram = "zentest";
+   };
+ 
++  algoliasearch = attrs: {
++    postInstall = ''
++      installPath=$(cat $out/nix-support/gem-meta/install-path)
++      rm $installPath/resources/ca-bundle.crt
++      ln -s ${cacert}/etc/ssl/certs/ca-bundle.crt $installPath/resources/ca-bundle.crt
++    '';
++  };
++
+   atk = attrs: {
+     dependencies = attrs.dependencies ++ [ "gobject-introspection" ];
+     nativeBuildInputs = [
+@@ -295,6 +304,14 @@ in
+     '';
+   };
+ 
++  excon = attrs: {
++    postInstall = ''
++      installPath=$(cat $out/nix-support/gem-meta/install-path)
++      rm $installPath/data/cacert.pem
++      ln -s ${cacert}/etc/ssl/certs/ca-bundle.crt $installPath/data/cacert.pem
++    '';
++  };
++
+   exiv2 = attrs: {
+     buildFlags = [
+       "--with-exiv2-lib=${exiv2}/lib"
+@@ -634,6 +651,16 @@ in
+     ];
+   };
+ 
++  httpclient = attrs: {
++    postInstall = ''
++      installPath=$(cat $out/nix-support/gem-meta/install-path)
++      for f in cacert.pem cacert1024.pem; do
++        rm $installPath/lib/httpclient/$f
++        ln -s ${cacert}/etc/ssl/certs/ca-bundle.crt $installPath/lib/httpclient/$f
++      done
++    '';
++  };
++
+   iconv = attrs: {
+     buildFlags = lib.optionals stdenv.hostPlatform.isDarwin [
+       "--with-iconv-dir=${lib.getLib libiconv}"
+@@ -771,6 +798,14 @@ in
+     ];
+   };
+ 
++  nap = attrs: {
++    postInstall = ''
++      installPath=$(cat $out/nix-support/gem-meta/install-path)
++      rm $installPath/support/cacert.pem
++      ln -s ${cacert}/etc/ssl/certs/ca-bundle.crt $installPath/support/cacert.pem
++    '';
++  };
++
+   ncursesw = attrs: {
+     buildInputs = [ ncurses ];
+     buildFlags = [

@@ -1,0 +1,73 @@
+Deno: prefer the patched Nix CA bundle without recompiling the runtime
+
+CVE-2026-111943: https://github.com/NixOS/nixpkgs/issues/576544
+Deno 2.9.7 embeds older roots and accepts the compromised eMudhra chains.
+Wrap the cached binary, including dx, to select system trust and the Nix
+bundle by default. Explicit environment overrides remain available.
+This protects normal devenv runtime use; denort and standalone executables
+produced by deno compile still require an upstream source update.
+
+--- a/pkgs/by-name/de/deno/package.nix
++++ b/pkgs/by-name/de/deno/package.nix
+@@ -2,6 +2,8 @@
+   stdenv,
+   lib,
+   callPackage,
++  cacert,
++  symlinkJoin,
+   fetchFromGitHub,
+   rustPlatform,
+   cmake,
+@@ -34,8 +36,25 @@
+ 
+ let
+   canExecute = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
++  wrapDeno = unwrapped: symlinkJoin {
++    pname = "deno";
++    inherit (unwrapped) version meta;
++    paths = [ unwrapped ];
++    nativeBuildInputs = [ makeBinaryWrapper ];
++    postBuild = ''
++      rm "$out/bin/deno" "$out/bin/dx"
++      makeBinaryWrapper ${lib.getExe unwrapped} "$out/bin/deno" \
++        --set-default DENO_TLS_CA_STORE system \
++        --set-default SSL_CERT_FILE ${cacert}/etc/ssl/certs/ca-no-trust-rules-bundle.crt
++      makeBinaryWrapper "$out/bin/deno" "$out/bin/dx" --add-flags x
++    '';
++    passthru = unwrapped.passthru // {
++      inherit unwrapped;
++      inherit (unwrapped) denort libdenort;
++    };
++  };
+ in
+-rustPlatform.buildRustPackage (finalAttrs: {
++wrapDeno (rustPlatform.buildRustPackage (finalAttrs: {
+   pname = "deno";
+   version = "2.9.7";
+ 
+@@ -274,7 +293,7 @@
+   passthru = {
+     updateScript = ./update.sh;
+     tests = (import ./tests { inherit deno runCommand lib; }) // {
+-      build-with-unit-tests = deno.overrideAttrs (fa: {
++      build-with-unit-tests = finalAttrs.finalPackage.overrideAttrs (fa: {
+         # The tools test suite requires building the test server
+         dontBuild = false;
+         # Many tests depend on prebuilt binaries being present at `./third_party/prebuilt`.
+@@ -319,4 +338,4 @@
+       "aarch64-darwin"
+     ];
+   };
+-})
++}))
+--- a/pkgs/by-name/de/deno/update.sh
++++ b/pkgs/by-name/de/deno/update.sh
+@@ -3,7 +3,7 @@
+ 
+ old_version="$(nix-instantiate --raw --eval -A deno.version)"
+ 
+-nix-update deno
++nix-update deno.unwrapped
+ 
+ new_version="$(nix-instantiate --raw --eval -A deno.version)"
+ 

@@ -1,0 +1,46 @@
+From 0d765791b09356dd5b356559c1b67c1600ca3c5b Mon Sep 17 00:00:00 2001
+From: Baptiste Girardeau <contact@bgirardeau.me>
+Date: Thu, 22 Oct 2026 14:27:05 +0200
+Subject: [PATCH] bun: 1.4.2 -> 1.4.4
+
+Backport https://github.com/NixOS/nixpkgs/pull/577354 at immutable commit
+0d765791b09356dd5b356559c1b67c1600ca3c5b. Bun 1.4.4 updates its embedded
+CA store for CVE-2026-111943 (oven-sh/bun#46159). Needed by devenv
+JavaScript environments; the selected nixpkgs master pin still has 1.4.2.
+
+---
+ pkgs/by-name/bu/bun/package.nix | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/pkgs/by-name/bu/bun/package.nix b/pkgs/by-name/bu/bun/package.nix
+index fd25e55e4bdb0..2b9eb4d06e85d 100644
+--- a/pkgs/by-name/bu/bun/package.nix
++++ b/pkgs/by-name/bu/bun/package.nix
+@@ -17,7 +17,7 @@
+ }:
+ 
+ stdenvNoCC.mkDerivation (finalAttrs: {
+-  version = "1.4.2";
++  version = "1.4.4";
+   pname = "bun";
+ 
+   src =
+@@ -69,15 +69,15 @@ stdenvNoCC.mkDerivation (finalAttrs: {
+     sources = {
+       "aarch64-darwin" = fetchurl {
+         url = "https://github.com/oven-sh/bun/releases/download/bun-v${finalAttrs.version}/bun-darwin-aarch64.zip";
+-        hash = "sha256-kJh6OhbX21VtiGrD1VHnttPt8KHPQ6yu1iLoZ2vh0S8=";
++        hash = "sha256-wkDX8My5DCY6hJ/NsJt+5iYw2SE0jtaq/ahrnVd7xRA=";
+       };
+       "aarch64-linux" = fetchurl {
+         url = "https://github.com/oven-sh/bun/releases/download/bun-v${finalAttrs.version}/bun-linux-aarch64.zip";
+-        hash = "sha256-VDKLvC2cjgyfiSxUTWbFeoO4QTnjSQnl7oF1jxrI/ac=";
++        hash = "sha256-uqa7NvUdblhWHgK76oJQOKnfRU9nPW13bou/hvjHhQ4=";
+       };
+       "x86_64-linux" = fetchurl {
+         url = "https://github.com/oven-sh/bun/releases/download/bun-v${finalAttrs.version}/bun-linux-x64-baseline.zip";
+-        hash = "sha256-xngEDxT+BEDrg503y9DOTAUaMtpygGrJfeamqra/co8=";
++        hash = "sha256-4ERutVmVdy65iUvrrppr42jZhai5Jx7hJEhvmUbu3XY=";
+       };
+     };
+     updateScript = writeShellScript "update-bun" ''

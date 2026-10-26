@@ -4,8 +4,9 @@ Battle-tested [nixpkgs](https://github.com/NixOS/nixpkgs) using [devenv](https:/
 
 Currently, the only supported release is [rolling](https://github.com/cachix/devenv-nixpkgs/tree/rolling).
 
-Rolling is based on [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
+Main tracks [nixpkgs-unstable](https://github.com/NixOS/nixpkgs/tree/nixpkgs-unstable)
 plus any patches that improve the integrations and services offered by [devenv](https://github.com/cachix/devenv).
+Rolling contains snapshots promoted from main.
 
 ## Usage
 
@@ -101,26 +102,26 @@ Overlays are more resilient to upstream changes than source patches.
 Latest test results from devenv's comprehensive test suite:
 
 <!-- TEST_RESULTS_START -->
-**Nixpkgs revision**: [`8edc0c7`](https://github.com/NixOS/nixpkgs/commit/8edc0c72e3a38faf5434e40d1f19431125fe4b30)
+**Nixpkgs revision**: [`674a202`](https://github.com/NixOS/nixpkgs/commit/674a2028661e550a97400c1cc992b9cca9a668a1)
 
-**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/38237847059)
+**Test run**: [View detailed results](https://github.com/cachix/devenv-nixpkgs/actions/runs/40341314331)
 
-**Last updated**: 2026-10-12 12:07:13 UTC
+**Last updated**: 2026-10-26 19:29:25 UTC
 
 ### Platform Results
 
 | Platform | Tests Failed/Total | Success Rate |
 |----------|-------------------|--------------|
-| aarch64-linux | 1/71 | 98.5% |
-| x86_64-linux | 1/72 | 98.6% |
-| aarch64-darwin | 1/67 | 98.5% |
+| aarch64-linux | 2/70 | 97.1% |
+| x86_64-linux | 2/71 | 97.1% |
+| aarch64-darwin | 4/66 | 93.9% |
 
 ### Summary
 
-- **Total test jobs**: 211
-- **Successful**: 208 ✅
-- **Failed**: 3 ❌
-- **Success rate**: 98%
+- **Total test jobs**: 207
+- **Successful**: 199 ✅
+- **Failed**: 8 ❌
+- **Success rate**: 96%
 
 <!-- TEST_RESULTS_END -->
 
