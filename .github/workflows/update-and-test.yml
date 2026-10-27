@@ -1,6 +1,14 @@
 name: Update and test
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - patches/**
+      - flake.nix
+      - lib/source.nix
+      - lib/patch-hash.nix
+      - lib/publish_sources.py
   schedule:
     - cron: "0 9 * * 1"
   workflow_dispatch:
@@ -30,6 +38,7 @@ jobs:
         uses: cachix/install-nix-action@v31
 
       - name: Update flake.lock
+        if: github.event_name != 'push'
         run: nix flake update
 
       - name: Get nixpkgs revision
@@ -41,24 +50,32 @@ jobs:
           echo "short=$SHORT" >> "$GITHUB_OUTPUT"
           echo "Nixpkgs revision: $SHORT"
 
-      - name: Validate patches apply
+      - name: Publish patched source snapshots
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          SYSTEM=$(nix eval --impure --raw --expr builtins.currentSystem)
-          nix build ".#legacyPackages.$SYSTEM.hello" --no-link
+          gh auth setup-git
+          python3 lib/publish_sources.py --publish
+
+      - name: Evaluate Darwin without import-from-derivation
+        run: |
+          nix eval --raw .#legacyPackages.aarch64-darwin.hello.drvPath \
+            --option allow-import-from-derivation false \
+            --option builders "" --option max-jobs 0 --option substitute false
 
       - name: Commit and push
         id: commit
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update nixpkgs to ${{ steps.nixpkgs.outputs.short }}"
-          file_pattern: flake.lock
+          file_pattern: flake.lock sources.json
 
   test:
     needs: update
-    # auto (and scheduled runs): test only when the update changed flake.lock.
+    # auto (and scheduled runs): test when the lock or source snapshots changed.
     # always: always test. never: never test.
     if: >-
-      inputs.run_tests == 'always' ||
+      github.event_name == 'push' || inputs.run_tests == 'always' ||
       (inputs.run_tests != 'never' && needs.update.outputs.changes_detected == 'true')
     uses: ./.github/workflows/run-devenv-tests.yml
     with:

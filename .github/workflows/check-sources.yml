@@ -1,0 +1,28 @@
+name: Check source snapshots
+
+on:
+  pull_request:
+  push:
+    branches: [main, rolling]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cachix/install-nix-action@v31
+      - name: Test source publication
+        run: python3 -m unittest discover -s tests
+      - name: Check snapshots match patches and lock file
+        run: python3 lib/publish_sources.py
+      - name: Evaluate Darwin without import-from-derivation
+        run: |
+          nix eval --raw .#legacyPackages.aarch64-darwin.hello.drvPath \
+            --option allow-import-from-derivation false \
+            --option builders "" --option max-jobs 0 --option substitute false
+          nix eval --impure --raw --expr '(import ./. { system = "aarch64-darwin"; }).hello.drvPath' \
+            --option allow-import-from-derivation false \
+            --option builders "" --option max-jobs 0 --option substitute false

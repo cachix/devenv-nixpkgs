@@ -71,9 +71,24 @@ For patches not yet submitted upstream:
 
 ### Testing Locally
 
-Test patches before pushing:
+Source patches are applied when publishing snapshots, not during package
+evaluation. After changing patches or the upstream lock, publish new snapshots:
 
 ```bash
+python3 lib/publish_sources.py --publish
+```
+
+This pushes immutable `patched/<content-hash>` branches and updates `sources.json`.
+The snapshots omit upstream workflow definitions so CI can publish them with
+its existing `contents: write` permission.
+For a fork, pass `--repository OWNER/devenv-nixpkgs` so the snapshots are published
+to your own repository. Commit `sources.json` together with the patch or lock change.
+
+Check that published snapshots match the patches and lock file, then test packages:
+
+```bash
+python3 lib/publish_sources.py
+
 # Build a package with patches applied
 nix build .#legacyPackages.x86_64-linux.hello
 
@@ -129,9 +144,12 @@ Latest test results from devenv's comprehensive test suite:
 
 ### How It Works
 
-1. `flake.nix` imports nixpkgs-unstable and applies patches at evaluation time
-2. `flake.lock` pins the exact nixpkgs revision
-3. CI runs weekly to update, test, and create release PRs
+1. `flake.lock` pins the exact nixpkgs-unstable revision
+2. Publishing builds Linux and Darwin patched source trees using native tools
+3. `sources.json` pins their Git revisions and NAR hashes
+4. Flake and non-flake imports fetch these trees without import-from-derivation,
+   including when evaluating Darwin packages on Linux
+5. CI runs weekly to update, publish, test, and create release PRs
 
 ### Branches
 
@@ -143,11 +161,14 @@ Latest test results from devenv's comprehensive test suite:
 Every Monday at 9:00 UTC (or manually triggered):
 
 1. **Update**: `nix flake update` pulls latest nixpkgs-unstable
-2. **Validate**: Build a test package to verify patches apply
-3. **Push**: Commit updated `flake.lock` to `main`
+2. **Publish**: Apply patches and push immutable source snapshots
+3. **Push**: Commit updated `flake.lock` and `sources.json` to `main`
 4. **Test**: Run devenv test suite across all platforms
 5. **Summary**: Update README with test results
 6. **Release PR**: Create PR to promote `main` → `rolling`
+
+Changes to patches or the publishing code on `main` also publish and test fresh
+snapshots. Pull requests check snapshot integrity and evaluation without IFD.
 
 ### Manual Updates
 
@@ -155,6 +176,7 @@ Test locally:
 
 ```bash
 nix flake update
+python3 lib/publish_sources.py --publish
 nix build .#legacyPackages.x86_64-linux.hello
 ```
 
