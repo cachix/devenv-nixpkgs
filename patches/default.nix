@@ -18,15 +18,7 @@
 #     sha256 = "sha256-AAAA...";
 #   })
 
-{
-  fetchpatch,
-  lib,
-  stdenv,
-}:
-
-let
-  inherit (stdenv.hostPlatform) isDarwin;
-in
+{ fetchpatch }:
 
 {
   # Patches from nixpkgs PRs or unreleased fixes
@@ -60,8 +52,6 @@ in
     ./gitpython-3.2.1.patch
     # https://github.com/NixOS/nixpkgs/issues/577795
     ./pylint-cache-security.patch
-  ]
-  ++ lib.optionals isDarwin [
     # Avoid port 8000 collisions in CherryPy logging tests on macOS builders.
     ./cherrypy-test-port.patch
     # macOS builders share /tmp; another build user may own service-locks.

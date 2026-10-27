@@ -6,17 +6,24 @@ Nix build user. This fails pytest-services and its CherryPy/Poetry dependents.
 
 Override the fixture only in the package's own tests, using pytest's private
 temporary directory. Keep the port and display allocation tests enabled.
-Applied only on Darwin; Linux derivations retain their cached store paths.
+The fixture override is enabled only on Darwin.
 
 Local fix; no upstream issue filed.
 
 --- a/pkgs/development/python-modules/pytest-services/default.nix
 +++ b/pkgs/development/python-modules/pytest-services/default.nix
-@@ -52,6 +52,16 @@
+@@ -1,5 +1,6 @@
+ {
+   lib,
++  stdenv,
+   buildPythonPackage,
+   fetchFromGitHub,
+   psutil,
+@@ -52,6 +53,16 @@
  
    pythonImportsCheck = [ "pytest_services" ];
  
-+  preCheck = ''
++  preCheck = lib.optionalString stdenv.hostPlatform.isDarwin ''
 +    # Darwin sandboxes share /tmp with other Nix build users.
 +    cat >> tests/conftest.py <<'PY'
 +

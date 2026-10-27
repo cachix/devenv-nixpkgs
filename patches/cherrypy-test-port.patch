@@ -14,7 +14,7 @@ Local fix; no upstream issue filed.
      hash = "sha256-bHDnjuETAOiyHAdnxUKuaxAqScrFz9Tj4xPXu5B8WJE=";
    };
 +
-+  patches = [ ./dynamic-test-port.patch ];
++  patches = lib.optionals stdenv.hostPlatform.isDarwin [ ./dynamic-test-port.patch ];
  
    postPatch = ''
      # Disable doctest plugin because times out

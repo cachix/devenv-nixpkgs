@@ -6,8 +6,6 @@ on:
     paths:
       - patches/**
       - flake.nix
-      - lib/source.nix
-      - lib/patch-hash.nix
       - lib/publish_sources.py
   schedule:
     - cron: "0 9 * * 1"
@@ -50,7 +48,7 @@ jobs:
           echo "short=$SHORT" >> "$GITHUB_OUTPUT"
           echo "Nixpkgs revision: $SHORT"
 
-      - name: Publish patched source snapshots
+      - name: Publish patched source snapshot
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -72,7 +70,7 @@ jobs:
 
   test:
     needs: update
-    # auto (and scheduled runs): test when the lock or source snapshots changed.
+    # auto (and scheduled runs): test when the lock or source snapshot changed.
     # always: always test. never: never test.
     if: >-
       github.event_name == 'push' || inputs.run_tests == 'always' ||

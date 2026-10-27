@@ -13,7 +13,7 @@
   ...
 }@args:
 let
-  patchedSrc = import ./lib/source.nix { inherit system; };
+  patchedSrc = builtins.fetchTree (builtins.fromJSON (builtins.readFile ./sources.json));
 in
 import patchedSrc (
   args

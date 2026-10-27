@@ -1,6 +1,4 @@
-import json
 import os
-import shutil
 import subprocess
 import tempfile
 import unittest
@@ -10,76 +8,6 @@ from lib.publish_sources import publish_snapshot, run
 
 
 class PublishSnapshotTest(unittest.TestCase):
-    def test_source_selection_and_stale_metadata_without_ifd(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "lib").mkdir()
-            (root / "patches").mkdir()
-            for name in ["source.nix", "patch-hash.nix"]:
-                shutil.copy(Path(__file__).resolve().parents[1] / "lib" / name, root / "lib" / name)
-            patch = root / "patches" / "default.nix"
-            patch.write_text("{}\n")
-            lock = {"nodes": {"nixpkgs-src": {"locked": {"rev": "upstream"}}}}
-            (root / "flake.lock").write_text(json.dumps(lock))
-            patch_hash = run(
-                "nix", "eval", "--impure", "--raw", "--file", str(root / "lib/patch-hash.nix")
-            )
-            manifest = {"nixpkgsRev": "upstream", "patchesHash": patch_hash, "sources": {}}
-            for platform in ["linux", "darwin"]:
-                source = root / platform
-                source.mkdir()
-                (source / "platform").write_text(platform)
-                manifest["sources"][platform] = {
-                    "type": "path",
-                    "path": str(source),
-                    "narHash": run("nix", "hash", "path", "--type", "sha256", "--sri", str(source)),
-                }
-            (root / "sources.json").write_text(json.dumps(manifest))
-
-            def evaluate(system):
-                expr = (
-                    "builtins.readFile ((import "
-                    + str(root / "lib/source.nix")
-                    + ' { system = "'
-                    + system
-                    + '"; }) + "/platform")'
-                )
-                return subprocess.run(
-                    [
-                        "nix",
-                        "eval",
-                        "--impure",
-                        "--raw",
-                        "--expr",
-                        expr,
-                        "--option",
-                        "allow-import-from-derivation",
-                        "false",
-                        "--option",
-                        "builders",
-                        "",
-                        "--option",
-                        "max-jobs",
-                        "0",
-                        "--option",
-                        "substitute",
-                        "false",
-                    ],
-                    text=True,
-                    capture_output=True,
-                )
-
-            for system, platform in [("x86_64-linux", "linux"), ("aarch64-darwin", "darwin")]:
-                result = evaluate(system)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual(result.stdout, platform)
-            patch.write_text("{ changed = true; }\n")
-            self.assertIn("source snapshots are stale", evaluate("aarch64-darwin").stderr)
-            patch.write_text("{}\n")
-            lock["nodes"]["nixpkgs-src"]["locked"]["rev"] = "new-upstream"
-            (root / "flake.lock").write_text(json.dumps(lock))
-            self.assertIn("source snapshots are stale", evaluate("aarch64-darwin").stderr)
-
     def test_published_tree_preserves_contents_and_is_idempotent(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

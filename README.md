@@ -71,20 +71,21 @@ For patches not yet submitted upstream:
 
 ### Testing Locally
 
-Source patches are applied when publishing snapshots, not during package
-evaluation. After changing patches or the upstream lock, publish new snapshots:
+Source patches are applied when publishing a snapshot, not during package
+evaluation. Platform-specific behavior belongs in the patched package definitions,
+so every platform uses the same source tree. After changing patches or the upstream lock, publish a new snapshot:
 
 ```bash
 python3 lib/publish_sources.py --publish
 ```
 
 This pushes immutable `patched/<content-hash>` branches and updates `sources.json`.
-The snapshots omit upstream workflow definitions so CI can publish them with
+The snapshot omits upstream workflow definitions so CI can publish them with
 its existing `contents: write` permission.
-For a fork, pass `--repository OWNER/devenv-nixpkgs` so the snapshots are published
+For a fork, pass `--repository OWNER/devenv-nixpkgs` so the snapshot is published
 to your own repository. Commit `sources.json` together with the patch or lock change.
 
-Check that published snapshots match the patches and lock file, then test packages:
+Check that the published snapshot matches the patches and lock file, then test packages:
 
 ```bash
 python3 lib/publish_sources.py
@@ -145,9 +146,9 @@ Latest test results from devenv's comprehensive test suite:
 ### How It Works
 
 1. `flake.lock` pins the exact nixpkgs-unstable revision
-2. Publishing builds Linux and Darwin patched source trees using native tools
-3. `sources.json` pins their Git revisions and NAR hashes
-4. Flake and non-flake imports fetch these trees without import-from-derivation,
+2. Publishing builds one patched source tree using native tools
+3. `sources.json` pins its Git revision and NAR hash
+4. Flake and non-flake imports fetch this tree without import-from-derivation,
    including when evaluating Darwin packages on Linux
 5. CI runs weekly to update, publish, test, and create release PRs
 

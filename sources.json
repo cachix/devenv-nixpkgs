@@ -1,20 +1,7 @@
 {
-  "nixpkgsRev": "674a2028661e550a97400c1cc992b9cca9a668a1",
-  "patchesHash": "97ac99c823aba5134d967cc02770175fea86b1925e9ef23bc23ed5feb78bb5af",
-  "sources": {
-    "linux": {
-      "type": "github",
-      "owner": "cachix",
-      "repo": "devenv-nixpkgs",
-      "rev": "b6d2631a16a1e2d75cc3ccde3ff4fa46af8a65b7",
-      "narHash": "sha256-u02bBF4+M2HbtTJ1DVEMB1Xh9n4w8hkUvvdZE3Rc2RE="
-    },
-    "darwin": {
-      "type": "github",
-      "owner": "cachix",
-      "repo": "devenv-nixpkgs",
-      "rev": "a0edfa506e33ab8c3ff50a97e4146f842259011e",
-      "narHash": "sha256-OFf9udzjcqWzUW5yulJD2HGcGmJBSGoJHt9CvbAZyRE="
-    }
-  }
+  "type": "github",
+  "owner": "cachix",
+  "repo": "devenv-nixpkgs",
+  "rev": "f927ed08f4848e43dbc8917b8c68955d26d4d8dc",
+  "narHash": "sha256-1NY7oNE5DbBKY24IPl0rs2BSuLu1yga8CsUwVcqcx+A="
 }
