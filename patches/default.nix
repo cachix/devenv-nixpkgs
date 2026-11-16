@@ -31,8 +31,6 @@ in
 {
   # Patches from nixpkgs PRs or unreleased fixes
   upstream = [
-    # https://github.com/NixOS/nixpkgs/pull/577354 (snapshot; not yet merged)
-    ./bun-1.4.4.patch
     # Targeted CA-store fixes; keep the interpreter/compiler package paths.
     # https://github.com/NixOS/nixpkgs/pull/576514
     ./grpcio-system-ca.patch
@@ -40,8 +38,6 @@ in
     ./httplib2-system-ca.patch
     # https://github.com/NixOS/nixpkgs/pull/576575
     ./gradle-system-ca.patch
-    # https://github.com/NixOS/nixpkgs/pull/577131
-    ./ruby-gems-system-ca.patch
   ];
 
   # Local patches not yet submitted upstream
